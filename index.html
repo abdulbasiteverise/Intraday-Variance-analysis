@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intraday Pattern Deviation Analyzer</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ===== GLOBAL NAVIGATION ===== -->
+  <header class="nav-header" role="banner">
+    <div class="nav-inner">
+      <div class="nav-brand">
+        <span class="brand-icon">◈</span>
+        <div class="brand-text">
+          <span class="brand-title">Workforce Intelligence Suite</span>
+          <span class="brand-sub">Built by Abdul Basit</span>
+        </div>
+      </div>
+      <nav class="nav-links" role="navigation" aria-label="Suite navigation">
+        <a href="#" class="nav-link">ABIRE Forecast Validator</a>
+        <a href="#" class="nav-link">Intraday Reforecast Calculator</a>
+        <a href="#" class="nav-link">Variance Risk Analyzer</a>
+        <a href="#" class="nav-link nav-link--active">Intraday Pattern Deviation</a>
+        <a href="#" class="nav-link">BWIE Workforce Simulator</a>
+      </nav>
+      <button class="nav-menu-toggle" aria-label="Toggle menu" id="menuToggle">☰</button>
+    </div>
+  </header>
+
+  <main role="main">
+
+    <!-- ===== HERO SECTION ===== -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-bg-grid"></div>
+      <div class="hero-inner">
+        <div class="hero-badge">WFM Analytics · Real-Time</div>
+        <h1 class="hero-title" id="hero-title">Intraday Pattern<br /><span class="hero-title--accent">Deviation Analyzer</span></h1>
+        <p class="hero-subtitle">Compare today's arrival pattern with historical behavior to detect early operational drift.</p>
+        <div class="hero-actions">
+          <button class="btn btn--primary" id="loadExampleBtn">
+            <span class="btn-icon">⚡</span> Load Example Data
+          </button>
+          <button class="btn btn--ghost" id="clearDataBtn">
+            <span class="btn-icon">↺</span> Clear Data
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== STATUS CARDS ROW ===== -->
+    <section class="section section--cards" aria-label="Pattern status overview">
+      <div class="container">
+        <div class="cards-grid">
+
+          <div class="metric-card" id="card-status">
+            <div class="metric-card__label">Pattern Status</div>
+            <div class="metric-card__value" id="statusValue">—</div>
+            <div class="metric-card__tag" id="statusTag">Awaiting data</div>
+          </div>
+
+          <div class="metric-card" id="card-cumulative">
+            <div class="metric-card__label">Cumulative Variance</div>
+            <div class="metric-card__value" id="cumulativeValue">—</div>
+            <div class="metric-card__tag">vs. Historical Average</div>
+          </div>
+
+          <div class="metric-card" id="card-spike">
+            <div class="metric-card__label">Largest Spike</div>
+            <div class="metric-card__value" id="spikeValue">—</div>
+            <div class="metric-card__tag" id="spikeInterval">Interval —</div>
+          </div>
+
+          <div class="metric-card" id="card-dip">
+            <div class="metric-card__label">Largest Dip</div>
+            <div class="metric-card__value" id="dipValue">—</div>
+            <div class="metric-card__tag" id="dipInterval">Interval —</div>
+          </div>
+
+          <div class="metric-card" id="card-risk">
+            <div class="metric-card__label">Service Risk Signal</div>
+            <div class="metric-card__value" id="riskValue">—</div>
+            <div class="metric-card__tag" id="riskTag">Risk level</div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== DATA INPUT TABLE ===== -->
+    <section class="section" aria-labelledby="table-heading">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title" id="table-heading">Call Volume Input</h2>
+          <p class="section-desc">Enter historical and today's call volumes per 15-minute interval. Historical Average auto-calculates.</p>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="dataTable" role="grid" aria-label="Call volume data entry">
+            <thead>
+              <tr>
+                <th scope="col">Interval</th>
+                <th scope="col">Day 1</th>
+                <th scope="col">Day 2</th>
+                <th scope="col">Day 3</th>
+                <th scope="col">Day 4</th>
+                <th scope="col">Day 5</th>
+                <th scope="col" class="col-hist">Hist. Avg</th>
+                <th scope="col" class="col-today">Today Actual</th>
+                <th scope="col" class="col-dev">Deviation %</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <!-- Rows injected by script.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CHARTS SECTION ===== -->
+    <section class="section" aria-labelledby="charts-heading">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title" id="charts-heading">Arrival Pattern Visualization</h2>
+          <p class="section-desc">Visual comparison of historical vs. today's volumes and deviation distribution.</p>
+        </div>
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-card__title">Arrival Curves — Historical vs Today</div>
+            <div class="chart-card__canvas-wrap">
+              <canvas id="arrivalChart" aria-label="Arrival curves chart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card__title">Interval Deviation (%)</div>
+            <div class="chart-card__canvas-wrap">
+              <canvas id="deviationChart" aria-label="Deviation bar chart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card chart-card--wide">
+            <div class="chart-card__title">Cumulative Variance Trend</div>
+            <div class="chart-card__canvas-wrap">
+              <canvas id="cumulativeChart" aria-label="Cumulative variance chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ANALYSIS PANELS ===== -->
+    <section class="section" aria-labelledby="analysis-heading">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title" id="analysis-heading">Pattern Intelligence</h2>
+        </div>
+        <div class="analysis-grid">
+
+          <!-- Executive Narrative -->
+          <div class="panel panel--narrative">
+            <div class="panel__header">
+              <span class="panel__icon">📋</span>
+              <span class="panel__title">Executive Narrative</span>
+            </div>
+            <div class="panel__body" id="executiveNarrative">
+              <p class="panel__placeholder">Load data or enter values to generate the executive summary.</p>
+            </div>
+          </div>
+
+          <!-- Operational Insight -->
+          <div class="panel panel--insight">
+            <div class="panel__header">
+              <span class="panel__icon">🎯</span>
+              <span class="panel__title">Operational Insight</span>
+            </div>
+            <div class="panel__body" id="operationalInsight">
+              <p class="panel__placeholder">Operational recommendation will appear here.</p>
+            </div>
+          </div>
+
+          <!-- Period Breakdown -->
+          <div class="panel panel--breakdown">
+            <div class="panel__header">
+              <span class="panel__icon">📊</span>
+              <span class="panel__title">Period Breakdown</span>
+            </div>
+            <div class="panel__body" id="periodBreakdown">
+              <p class="panel__placeholder">Period analysis will appear here.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== EMAIL EXPORT ===== -->
+    <section class="section section--export" aria-labelledby="export-heading">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title" id="export-heading">Send Executive Summary</h2>
+          <p class="section-desc">Share the pattern analysis with your operations team.</p>
+        </div>
+        <div class="export-card">
+          <div class="export-preview" id="exportPreview">
+            <p class="panel__placeholder">Generate an analysis first to preview the summary.</p>
+          </div>
+          <div class="export-actions">
+            <button class="btn btn--export" id="outlookBtn">
+              <span class="btn-icon">📧</span> Open in Outlook
+            </button>
+            <button class="btn btn--export" id="gmailBtn">
+              <span class="btn-icon">✉️</span> Open in Gmail
+            </button>
+            <button class="btn btn--export" id="copyBtn">
+              <span class="btn-icon">📋</span> Copy Summary
+            </button>
+            <button class="btn btn--export" id="downloadBtn">
+              <span class="btn-icon">⬇</span> Download Report
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer-inner">
+      <span class="footer-mark">◈</span>
+      <span>Built by <strong>Abdul Basit</strong> · AI Workforce Analytics Tools</span>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
