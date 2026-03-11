@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="google-site-verification" content="acRZkEOgEaeTDYUVPuclMUXMAiluapMZMztuzAuppk4" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intraday Intelligence Dashboard — Workforce Intelligence Suite</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- NAVIGATION -->
+  <header class="nav-header" role="banner">
+    <div class="nav-inner">
+      <div class="nav-brand">
+        <div class="brand-logo">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+            <rect x="1" y="1" width="10" height="10" rx="2.5" fill="#2563eb"/>
+            <rect x="15" y="1" width="10" height="10" rx="2.5" fill="#2563eb" opacity="0.35"/>
+            <rect x="1" y="15" width="10" height="10" rx="2.5" fill="#2563eb" opacity="0.35"/>
+            <rect x="15" y="15" width="10" height="10" rx="2.5" fill="#2563eb"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">Workforce Intelligence Suite</span>
+          <span class="brand-sub">Intraday Intelligence Dashboard · Abdul Basit</span>
+        </div>
+      </div>
+      <nav class="nav-links" role="navigation" aria-label="Suite navigation">
+        <a href="https://abdulbasiteverise.github.io/abire-forecast-validator/" class="nav-link" target="_blank">ABIRE Validator</a>
+        <a href="https://abdulbasiteverise.github.io/Intraday-reforecasting-calculator/" class="nav-link" target="_blank">Reforecast Calc</a>
+        <a href="https://abdulbasiteverise.github.io/Intraday-Variance-analysis/" class="nav-link" target="_blank">Variance Analyzer</a>
+        <a href="https://abdulbasiteverise.github.io/Intraday-Pattern-Deviation/" class="nav-link nav-link--active">Pattern Deviation</a>
+        <a href="https://abdulbasiteverise.github.io/bwie-wfm-simulator/" class="nav-link" target="_blank">WFM Simulator</a>
+      </nav>
+      <button class="nav-menu-toggle" aria-label="Toggle menu" id="menuToggle">&#9776;</button>
+    </div>
+  </header>
+
+  <main role="main">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="container">
+        <div class="page-header-inner">
+          <div class="page-header-text">
+            <div class="page-badge"><span class="badge-dot"></span>WFM Analytics · Live Forecasting</div>
+            <h1 class="page-title">Intraday <span class="title-accent">Intelligence</span> Dashboard</h1>
+            <p class="page-subtitle">Arrival pattern detection, blended forecasting models, deviation monitoring, and operational insights for WFM planners.</p>
+          </div>
+          <div class="hero-actions">
+            <button class="btn btn--primary" id="loadExampleBtn">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v7M3.5 5L6.5 8 9.5 5M1.5 11h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Load Example
+            </button>
+            <button class="btn btn--ghost" id="clearDataBtn">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 2l9 9M11 2L2 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              Clear All
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI STRIP -->
+    <section class="kpi-section">
+      <div class="container">
+        <div class="kpi-strip">
+          <div class="kpi-item">
+            <div class="kpi-label">Traffic Pattern</div>
+            <div class="kpi-value" id="trafficPattern">—</div>
+          </div>
+          <div class="kpi-sep"></div>
+          <div class="kpi-item">
+            <div class="kpi-label">Cumulative Today</div>
+            <div class="kpi-value" id="siCumActual">—</div>
+          </div>
+          <div class="kpi-sep"></div>
+          <div class="kpi-item">
+            <div class="kpi-label">Expected by Now</div>
+            <div class="kpi-value" id="siCumExpected">—</div>
+          </div>
+          <div class="kpi-sep"></div>
+          <div class="kpi-item">
+            <div class="kpi-label">Variance %</div>
+            <div class="kpi-value" id="siVariancePct">—</div>
+          </div>
+          <div class="kpi-sep"></div>
+          <div class="kpi-item">
+            <div class="kpi-label">Historical Proj.</div>
+            <div class="kpi-value" id="siHistProj">—</div>
+          </div>
+          <div class="kpi-sep"></div>
+          <div class="kpi-item">
+            <div class="kpi-label">Run-Rate Proj.</div>
+            <div class="kpi-value" id="siRunRate">—</div>
+          </div>
+          <div class="kpi-sep"></div>
+          <div class="kpi-item">
+            <div class="kpi-label">Blended Forecast</div>
+            <div class="kpi-value" id="siBlended">—</div>
+          </div>
+          <div class="kpi-sep"></div>
+          <div class="kpi-item">
+            <div class="kpi-label">Confidence</div>
+            <div class="kpi-value" id="siConfidence">—</div>
+          </div>
+          <div class="kpi-sep"></div>
+          <div class="kpi-item">
+            <div class="kpi-label">Backlog Risk</div>
+            <div class="kpi-value" id="siBacklog">—</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- METRIC CARDS -->
+    <section class="section section--cards">
+      <div class="container">
+        <div class="cards-grid">
+          <div class="metric-card" id="card-status">
+            <div class="metric-card__label">Pattern Status</div>
+            <div class="metric-card__value" id="statusValue">—</div>
+            <div class="metric-card__tag" id="statusTag">Awaiting data</div>
+          </div>
+          <div class="metric-card" id="card-cumulative">
+            <div class="metric-card__label">Avg Deviation</div>
+            <div class="metric-card__value" id="cumulativeValue">—</div>
+            <div class="metric-card__tag">vs. Historical Average</div>
+          </div>
+          <div class="metric-card" id="card-blended">
+            <div class="metric-card__label">Blended EOD Forecast</div>
+            <div class="metric-card__value" id="blendedValue">—</div>
+            <div class="metric-card__tag" id="blendedTag">End of Day Estimate</div>
+          </div>
+          <div class="metric-card" id="card-risk">
+            <div class="metric-card__label">Service Risk</div>
+            <div class="metric-card__value" id="riskValue">—</div>
+            <div class="metric-card__tag" id="riskTag">Risk level</div>
+          </div>
+          <div class="metric-card" id="card-backlog">
+            <div class="metric-card__label">Backlog Risk</div>
+            <div class="metric-card__value" id="backlogValue">—</div>
+            <div class="metric-card__tag" id="backlogTag">Capacity status</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BULK PASTE -->
+    <section class="section section--paste" aria-labelledby="paste-heading">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title" id="paste-heading">Bulk Data Entry</h2>
+            <p class="section-desc">Paste each column vertically (one value per line) and click Apply, or use <kbd>Ctrl+V</kbd> on the table for Excel tab-separated multi-column paste.</p>
+          </div>
+        </div>
+
+        <div class="paste-grid">
+          <div class="paste-col">
+            <div class="paste-col__header"><span class="paste-col__badge paste-col__badge--hist">Wk −1</span></div>
+            <textarea class="paste-ta" id="pasteW1" placeholder="19&#10;24&#10;30&#10;38&#10;55..." rows="5"></textarea>
+            <button class="btn btn--paste" data-col="0">Apply</button>
+          </div>
+          <div class="paste-col">
+            <div class="paste-col__header"><span class="paste-col__badge paste-col__badge--hist">Wk −2</span></div>
+            <textarea class="paste-ta" id="pasteW2" placeholder="18&#10;23&#10;29&#10;36&#10;52..." rows="5"></textarea>
+            <button class="btn btn--paste" data-col="1">Apply</button>
+          </div>
+          <div class="paste-col">
+            <div class="paste-col__header"><span class="paste-col__badge paste-col__badge--hist">Wk −3</span></div>
+            <textarea class="paste-ta" id="pasteW3" placeholder="19&#10;23&#10;29&#10;30&#10;50..." rows="5"></textarea>
+            <button class="btn btn--paste" data-col="2">Apply</button>
+          </div>
+          <div class="paste-col">
+            <div class="paste-col__header"><span class="paste-col__badge paste-col__badge--hist">Wk −4</span></div>
+            <textarea class="paste-ta" id="pasteW4" placeholder="17&#10;26&#10;30&#10;35&#10;53..." rows="5"></textarea>
+            <button class="btn btn--paste" data-col="3">Apply</button>
+          </div>
+          <div class="paste-col">
+            <div class="paste-col__header"><span class="paste-col__badge paste-col__badge--hist">Wk −5</span></div>
+            <textarea class="paste-ta" id="pasteW5" placeholder="18&#10;23&#10;29&#10;37&#10;51..." rows="5"></textarea>
+            <button class="btn btn--paste" data-col="4">Apply</button>
+          </div>
+          <div class="paste-col paste-col--today">
+            <div class="paste-col__header"><span class="paste-col__badge paste-col__badge--today">Today Actual</span></div>
+            <textarea class="paste-ta paste-ta--today" id="pasteToday" placeholder="20&#10;25&#10;28&#10;35&#10;50..." rows="5"></textarea>
+            <button class="btn btn--paste btn--paste-today" data-col="today">Apply</button>
+          </div>
+        </div>
+
+        <div class="config-row">
+          <div class="config-card">
+            <label class="config-label" for="dailyForecastInput">Daily Forecast Volume</label>
+            <input type="number" id="dailyForecastInput" class="config-input" placeholder="e.g. 2500" min="0" step="1" />
+            <span class="config-hint">Used by Historical Projection model</span>
+          </div>
+          <div class="config-card">
+            <label class="config-label" for="availableCapacityInput">Available Capacity</label>
+            <input type="number" id="availableCapacityInput" class="config-input" placeholder="e.g. 2400" min="0" step="1" />
+            <span class="config-hint">Used for Backlog Risk calculation</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DATA TABLE -->
+    <section class="section section--table" aria-labelledby="table-heading">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title" id="table-heading">Interval Forecasting Table</h2>
+            <p class="section-desc">All 61 intervals from 8:00–23:00. Historical weeks, arrival pattern, deviation, and all forecast models per interval.</p>
+          </div>
+          <div class="table-legend">
+            <span class="leg leg--green">±0–5% Normal</span>
+            <span class="leg leg--yellow">5–10% Drift</span>
+            <span class="leg leg--red">&gt;10% Major</span>
+          </div>
+        </div>
+        <div class="table-scroller" id="tableWrapper">
+          <table class="data-table" id="dataTable">
+            <thead>
+              <tr class="th-groups">
+                <th class="th-sticky th-interval" rowspan="2">Interval</th>
+                <th colspan="5" class="th-group th-group--hist">Historical Weeks</th>
+                <th colspan="2" class="th-group th-group--calc">Calculated</th>
+                <th colspan="3" class="th-group th-group--today">Today</th>
+                <th colspan="4" class="th-group th-group--models">Forecast Models</th>
+                <th colspan="2" class="th-group th-group--ops">Operations</th>
+              </tr>
+              <tr>
+                <th class="th-sub th-week">Wk −1</th>
+                <th class="th-sub th-week">Wk −2</th>
+                <th class="th-sub th-week">Wk −3</th>
+                <th class="th-sub th-week">Wk −4</th>
+                <th class="th-sub th-week">Wk −5</th>
+                <th class="th-sub th-hist">Hist. Avg</th>
+                <th class="th-sub th-arrival">Arrival %</th>
+                <th class="th-sub th-today">Actual</th>
+                <th class="th-sub th-dev">Dev %</th>
+                <th class="th-sub th-cmpl">Cmpl %</th>
+                <th class="th-sub th-histp">Hist. Proj</th>
+                <th class="th-sub th-rr">Run-Rate</th>
+                <th class="th-sub th-blend">Blended</th>
+                <th class="th-sub th-conf">Confidence</th>
+                <th class="th-sub th-rem">Remaining</th>
+                <th class="th-sub th-bl">Backlog</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHARTS -->
+    <section class="section section--charts" aria-labelledby="charts-heading">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title" id="charts-heading">Data Visualization</h2>
+          <p class="section-desc">Live charts updating as you enter data.</p>
+        </div>
+        <div class="charts-grid">
+          <div class="chart-card chart-card--wide">
+            <div class="chart-card__title">Forecast vs Actual — Historical, Run-Rate &amp; Blended</div>
+            <div class="chart-wrap"><canvas id="forecastChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card__title">Arrival Pattern Distribution (%)</div>
+            <div class="chart-wrap"><canvas id="arrivalChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card__title">Interval Deviation (%)</div>
+            <div class="chart-wrap"><canvas id="deviationChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INSIGHTS PANELS -->
+    <section class="section section--insights" aria-labelledby="insights-heading">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title" id="insights-heading">Pattern Intelligence</h2>
+        </div>
+        <div class="insights-grid">
+          <div class="panel panel--ops">
+            <div class="panel__hdr">
+              <span class="panel__hdr-icon">💡</span>
+              <span class="panel__hdr-title">Operational Insights</span>
+            </div>
+            <div class="panel__body" id="operationalInsight">
+              <p class="ph">Load data to generate operational insights.</p>
+            </div>
+          </div>
+          <div class="panel panel--narrative">
+            <div class="panel__hdr">
+              <span class="panel__hdr-icon">📋</span>
+              <span class="panel__hdr-title">Executive Narrative</span>
+            </div>
+            <div class="panel__body" id="executiveNarrative">
+              <p class="ph">Load data or enter values to generate the executive summary.</p>
+            </div>
+          </div>
+          <div class="panel panel--periods">
+            <div class="panel__hdr">
+              <span class="panel__hdr-icon">📊</span>
+              <span class="panel__hdr-title">Period Breakdown</span>
+            </div>
+            <div class="panel__body" id="periodBreakdown">
+              <p class="ph">Period analysis will appear here.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXPORT -->
+    <section class="section section--export" aria-labelledby="export-heading">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title" id="export-heading">Send Executive Summary</h2>
+          <p class="section-desc">Share the full analysis with your operations team.</p>
+        </div>
+        <div class="export-card">
+          <div class="export-preview" id="exportPreview"><span class="ph">Generate an analysis first to preview the summary.</span></div>
+          <div class="export-actions">
+            <button class="btn btn--export" id="outlookBtn">📧 Outlook</button>
+            <button class="btn btn--export" id="gmailBtn">✉️ Gmail</button>
+            <button class="btn btn--export" id="copyBtn">📋 Copy</button>
+            <button class="btn btn--export" id="downloadBtn">⬇ Download</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <svg width="15" height="15" viewBox="0 0 22 22" fill="none"><rect x="1" y="1" width="8" height="8" rx="2" fill="#2563eb"/><rect x="13" y="1" width="8" height="8" rx="2" fill="#2563eb" opacity="0.4"/><rect x="1" y="13" width="8" height="8" rx="2" fill="#2563eb" opacity="0.4"/><rect x="13" y="13" width="8" height="8" rx="2" fill="#2563eb"/></svg>
+      <span>Built by <strong>Abdul Basit</strong> · Workforce Intelligence Suite · Intraday Intelligence Dashboard</span>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
