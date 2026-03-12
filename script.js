@@ -177,10 +177,13 @@ function calcCumHist(histAvgs) {
   return histAvgs.map(v => { cum += (v || 0); return v !== null ? cum : null; });
 }
 
-/* Historical Projection: daily forecast × arrival pattern % */
+/* Historical Projection: baseline end-of-day forecast */
 function calcHistProj(arrivalPct, dailyForecast) {
   if (!dailyForecast) return new Array(N).fill(null);
-  return arrivalPct.map(a => (a !== null ? dailyForecast * a : null));
+
+  // Baseline EOD forecast repeated across intervals
+  return arrivalPct.map(() => dailyForecast);
+}
 }
 
 /* Run-Rate: cumActual / histCompletion → EOD estimate */
