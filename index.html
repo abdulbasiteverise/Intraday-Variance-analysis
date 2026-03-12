@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="google-site-verification" content="acRZkEOgEaeTDYUVPuclMUXMAiluapMZMztuzAuppk4" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intraday Forecasting Dashboard — Workforce Intelligence Suite</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ===== NAVIGATION ===== -->
+  <header class="nav-header" role="banner">
+    <div class="nav-inner">
+      <div class="nav-brand">
+        <div class="brand-logo">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+            <rect x="1" y="1" width="8" height="8" rx="2" fill="#2563eb"/>
+            <rect x="13" y="1" width="8" height="8" rx="2" fill="#2563eb" opacity="0.5"/>
+            <rect x="1" y="13" width="8" height="8" rx="2" fill="#2563eb" opacity="0.5"/>
+            <rect x="13" y="13" width="8" height="8" rx="2" fill="#2563eb"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">Workforce Intelligence Suite</span>
+          <span class="brand-sub">Built by Abdul Basit</span>
+        </div>
+      </div>
+      <nav class="nav-links" role="navigation" aria-label="Suite navigation">
+        <a href="https://abdulbasiteverise.github.io/abire-forecast-validator/" class="nav-link" target="_blank">ABIRE Validator</a>
+        <a href="https://abdulbasiteverise.github.io/Intraday-reforecasting-calculator/" class="nav-link" target="_blank">Reforecast Calc</a>
+        <a href="https://abdulbasiteverise.github.io/Intraday-Variance-analysis/" class="nav-link" target="_blank">Variance Analyzer</a>
+        <a href="https://abdulbasiteverise.github.io/Intraday-Pattern-Deviation/" class="nav-link nav-link--active" target="_blank">Pattern Deviation</a>
+        <a href="https://abdulbasiteverise.github.io/bwie-wfm-simulator/" class="nav-link" target="_blank">WFM Simulator</a>
+      </nav>
+      <button class="nav-menu-toggle" aria-label="Toggle menu" id="menuToggle">&#9776;</button>
+    </div>
+  </header>
+
+  <main role="main">
+
+    <!-- ===== PAGE HEADER ===== -->
+    <div class="page-header">
+      <div class="container">
+        <div class="page-header-inner">
+          <div>
+            <div class="page-badge">
+              <span class="badge-dot"></span>
+              WFM Analytics · Intraday Forecasting
+            </div>
+            <h1 class="page-title">Intraday Pattern <span class="title-accent">Deviation Analyzer</span></h1>
+            <p class="page-subtitle">Compare today's arrival pattern with historical behavior to detect operational drift and project final daily volume.</p>
+          </div>
+          <div class="hero-actions">
+            <button class="btn btn--primary" id="loadExampleBtn">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M3.5 5.5L7 9l3.5-3.5M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Load Example Data
+            </button>
+            <button class="btn btn--ghost" id="clearDataBtn">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              Clear Data
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== INTRADAY SUMMARY PANEL ===== -->
+    <section class="section section--summary" aria-labelledby="summary-heading">
+      <div class="container">
+        <div class="summary-strip" id="summaryStrip">
+
+          <div class="summary-item" id="si-traffic">
+            <div class="summary-item__icon">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2L16 14H2L9 2z" stroke="#2563eb" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <div class="summary-item__label">Traffic Pattern</div>
+              <div class="summary-item__value" id="trafficPattern">—</div>
+            </div>
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-item">
+            <div class="summary-item__icon">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="#2563eb" stroke-width="1.5"/><path d="M9 5v4l3 2" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <div class="summary-item__label">Cumulative Calls Today</div>
+              <div class="summary-item__value" id="siCumActual">—</div>
+            </div>
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-item">
+            <div class="summary-item__icon">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 15L7 9l4 3 4-8" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <div class="summary-item__label">Expected by Now</div>
+              <div class="summary-item__value" id="siCumExpected">—</div>
+            </div>
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-item">
+            <div>
+              <div class="summary-item__label">Variance %</div>
+              <div class="summary-item__value" id="siVariancePct">—</div>
+            </div>
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-item">
+            <div>
+              <div class="summary-item__label">Historical Projection</div>
+              <div class="summary-item__value" id="siHistProj">—</div>
+            </div>
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-item">
+            <div>
+              <div class="summary-item__label">Run-Rate Projection</div>
+              <div class="summary-item__value" id="siRunRate">—</div>
+            </div>
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-item">
+            <div>
+              <div class="summary-item__label">Confidence</div>
+              <div class="summary-item__value" id="siConfidence">—</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== METRIC CARDS ===== -->
+    <section class="section section--cards" aria-label="Pattern status overview">
+      <div class="container">
+        <div class="cards-grid">
+
+          <div class="metric-card" id="card-status">
+            <div class="metric-card__label">Pattern Status</div>
+            <div class="metric-card__value" id="statusValue">—</div>
+            <div class="metric-card__tag" id="statusTag">Awaiting data</div>
+          </div>
+
+          <div class="metric-card" id="card-cumulative">
+            <div class="metric-card__label">Avg Deviation</div>
+            <div class="metric-card__value" id="cumulativeValue">—</div>
+            <div class="metric-card__tag">vs. Historical Average</div>
+          </div>
+
+          <div class="metric-card" id="card-spike">
+            <div class="metric-card__label">Largest Spike</div>
+            <div class="metric-card__value" id="spikeValue">—</div>
+            <div class="metric-card__tag" id="spikeInterval">Interval —</div>
+          </div>
+
+          <div class="metric-card" id="card-dip">
+            <div class="metric-card__label">Largest Dip</div>
+            <div class="metric-card__value" id="dipValue">—</div>
+            <div class="metric-card__tag" id="dipInterval">Interval —</div>
+          </div>
+
+          <div class="metric-card" id="card-risk">
+            <div class="metric-card__label">Service Risk Signal</div>
+            <div class="metric-card__value" id="riskValue">—</div>
+            <div class="metric-card__tag" id="riskTag">Risk level</div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== DATA INPUT TABLE ===== -->
+    <section class="section" aria-labelledby="table-heading">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title" id="table-heading">Call Volume Input</h2>
+            <p class="section-desc">Enter historical (Day 1–5) and today's actual call volumes per 15-minute interval. All projection columns auto-calculate.</p>
+          </div>
+          <div class="table-legend">
+            <span class="legend-item legend-item--green">±0–5% Normal</span>
+            <span class="legend-item legend-item--yellow">±5–10% Drifting</span>
+            <span class="legend-item legend-item--red">&gt;10% Major</span>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="dataTable" role="grid" aria-label="Call volume data entry">
+            <thead>
+              <tr>
+                <th scope="col" class="col-sticky">Interval</th>
+                <th scope="col">Day 1</th>
+                <th scope="col">Day 2</th>
+                <th scope="col">Day 3</th>
+                <th scope="col">Day 4</th>
+                <th scope="col">Day 5</th>
+                <th scope="col" class="col-hist">Hist. Avg</th>
+                <th scope="col" class="col-completion">Hist. Completion %</th>
+                <th scope="col" class="col-today">Today Actual</th>
+                <th scope="col" class="col-dev">Deviation %</th>
+                <th scope="col" class="col-proj">Hist. Projection</th>
+                <th scope="col" class="col-runrate">Run-Rate Proj.</th>
+                <th scope="col" class="col-remaining">Remaining Calls</th>
+                <th scope="col" class="col-confidence">Confidence</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <!-- Rows injected by script.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CHARTS ===== -->
+    <section class="section" aria-labelledby="charts-heading">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title" id="charts-heading">Arrival Pattern Visualization</h2>
+          <p class="section-desc">Visual comparison of historical vs. today's volumes, deviation distribution, and projection trends.</p>
+        </div>
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-card__title">Arrival Curves — Historical vs Today</div>
+            <div class="chart-card__canvas-wrap">
+              <canvas id="arrivalChart" aria-label="Arrival curves chart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card__title">Interval Deviation (%)</div>
+            <div class="chart-card__canvas-wrap">
+              <canvas id="deviationChart" aria-label="Deviation bar chart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card chart-card--wide">
+            <div class="chart-card__title">Daily Volume Projections — Historical vs Run-Rate</div>
+            <div class="chart-card__canvas-wrap">
+              <canvas id="projectionChart" aria-label="Projection comparison chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ANALYSIS PANELS ===== -->
+    <section class="section" aria-labelledby="analysis-heading">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title" id="analysis-heading">Pattern Intelligence</h2>
+        </div>
+        <div class="analysis-grid">
+
+          <div class="panel panel--narrative">
+            <div class="panel__header">
+              <span class="panel__icon">📋</span>
+              <span class="panel__title">Executive Narrative</span>
+            </div>
+            <div class="panel__body" id="executiveNarrative">
+              <p class="panel__placeholder">Load data or enter values to generate the executive summary.</p>
+            </div>
+          </div>
+
+          <div class="panel panel--insight">
+            <div class="panel__header">
+              <span class="panel__icon">🎯</span>
+              <span class="panel__title">Operational Insight</span>
+            </div>
+            <div class="panel__body" id="operationalInsight">
+              <p class="panel__placeholder">Operational recommendation will appear here.</p>
+            </div>
+          </div>
+
+          <div class="panel panel--breakdown">
+            <div class="panel__header">
+              <span class="panel__icon">📊</span>
+              <span class="panel__title">Period Breakdown</span>
+            </div>
+            <div class="panel__body" id="periodBreakdown">
+              <p class="panel__placeholder">Period analysis will appear here.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== EMAIL EXPORT ===== -->
+    <section class="section section--export" aria-labelledby="export-heading">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title" id="export-heading">Send Executive Summary</h2>
+          <p class="section-desc">Share the pattern analysis with your operations team.</p>
+        </div>
+        <div class="export-card">
+          <div class="export-preview" id="exportPreview">
+            <p class="panel__placeholder">Generate an analysis first to preview the summary.</p>
+          </div>
+          <div class="export-actions">
+            <button class="btn btn--export" id="outlookBtn">
+              <span>📧</span> Open in Outlook
+            </button>
+            <button class="btn btn--export" id="gmailBtn">
+              <span>✉️</span> Open in Gmail
+            </button>
+            <button class="btn btn--export" id="copyBtn">
+              <span>📋</span> Copy Summary
+            </button>
+            <button class="btn btn--export" id="downloadBtn">
+              <span>⬇</span> Download Report
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <svg width="16" height="16" viewBox="0 0 22 22" fill="none">
+          <rect x="1" y="1" width="8" height="8" rx="2" fill="#2563eb"/>
+          <rect x="13" y="1" width="8" height="8" rx="2" fill="#2563eb" opacity="0.4"/>
+          <rect x="1" y="13" width="8" height="8" rx="2" fill="#2563eb" opacity="0.4"/>
+          <rect x="13" y="13" width="8" height="8" rx="2" fill="#2563eb"/>
+        </svg>
+      </div>
+      <span>Built by <strong>Abdul Basit</strong> · Workforce Intelligence Suite · Intraday Pattern Deviation Analyzer</span>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
