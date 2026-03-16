@@ -931,3 +931,26 @@ kbd {
 
 /* ── §23 AUTO-MODE CONFIG SYNC ──────────────────────── */
 /* When in auto mode, dailyForecastInputAuto syncs to state via JS */
+/* ===== WFM Tool Suite Navigation ===== */
+
+.suite-nav {
+  display: flex;
+  gap: 12px;
+  padding: 12px 20px;
+  background: #0f172a;
+  border-bottom: 1px solid #1e293b;
+}
+
+.suite-nav a {
+  color: #e2e8f0;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+.suite-nav a:hover {
+  background: #2563eb;
+  color: white;
+}
