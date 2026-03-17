@@ -27,12 +27,14 @@ function genIntervals(startH, endH) {
 }
 const INTERVALS = genIntervals(8, 23);
 const N = INTERVALS.length; // 61
+const DEFAULT_WEEK_COUNT = 5;
 
 /* ─────────────────────────────────────────────────────────
    §2  APPLICATION STATE
 ───────────────────────────────────────────────────────── */
 const state = {
   rows: [],
+  weeksData: Array.from({ length: DEFAULT_WEEK_COUNT }, (_, i) => ({ label: `WK -${i + 1}`, values: [] })),
   analysis: null,
   dailyForecast: null,
   availableCapacity: null,
@@ -42,14 +44,75 @@ const state = {
 /* ─────────────────────────────────────────────────────────
    §3  BUILD TABLE
 ───────────────────────────────────────────────────────── */
+function syncWeeksDataFromRows() {
+  state.weeksData.forEach((wk, d) => {
+    wk.values = state.rows.map(r => (r?.days?.[d] ?? null));
+  });
+}
+
+function restoreRowsFromWeeksData(previousRows) {
+  state.rows = INTERVALS.map((_, i) => {
+    const prev = previousRows?.[i];
+    return {
+      days: state.weeksData.map((wk, d) => wk.values?.[i] ?? prev?.days?.[d] ?? null),
+      today: prev?.today ?? null,
+    };
+  });
+}
+
+function renderWeeks() {
+  const pasteGrid = document.getElementById('pasteGrid');
+  const groupHeader = document.getElementById('tableGroupHeaderRow');
+  const subHeader = document.getElementById('tableSubHeaderRow');
+  if (!pasteGrid || !groupHeader || !subHeader) return;
+
+  const weekCount = state.weeksData.length;
+  const histGroup = groupHeader.querySelector('.th-group--hist');
+  if (histGroup) histGroup.colSpan = weekCount;
+
+  subHeader.querySelectorAll('.th-week').forEach(el => el.remove());
+  const histAnchor = subHeader.querySelector('.th-hist');
+  state.weeksData.forEach((wk, d) => {
+    const th = document.createElement('th');
+    th.className = 'th-sub th-week';
+    th.dataset.tip = `Call volume ${d + 1} week${d === 0 ? '' : 's'} ago.`;
+    th.textContent = wk.label.replace('WK', 'Wk').replace('-', '−');
+    subHeader.insertBefore(th, histAnchor);
+  });
+
+  pasteGrid.innerHTML = '';
+  state.weeksData.forEach((wk, d) => {
+    const col = document.createElement('div');
+    col.className = 'paste-col fade-in-col';
+    col.innerHTML = `
+      <div class="paste-col-label"><span class="week-badge week-badge--hist">${wk.label.replace('-', '−')}</span></div>
+      <textarea class="paste-ta" id="pasteW${d + 1}" rows="5"></textarea>
+      <button class="btn btn--apply" data-col="${d}">Apply</button>
+    `;
+    const ta = col.querySelector('textarea');
+    const values = wk.values.filter(v => v !== null);
+    if (values.length) ta.value = wk.values.map(v => (v ?? '')).join('\n');
+    pasteGrid.appendChild(col);
+  });
+
+  const todayCol = document.createElement('div');
+  todayCol.className = 'paste-col paste-col--today';
+  todayCol.innerHTML = `
+    <div class="paste-col-label"><span class="week-badge week-badge--today">Today Actual</span></div>
+    <textarea class="paste-ta paste-ta--today" id="pasteToday" rows="5"></textarea>
+    <button class="btn btn--apply btn--apply-today" data-col="today">Apply</button>
+  `;
+  todayCol.querySelector('#pasteToday').value = state.rows.map(r => (r.today ?? '')).join('\n');
+  pasteGrid.appendChild(todayCol);
+}
+
 function buildTable() {
   const tbody = document.getElementById('tableBody');
   tbody.innerHTML = '';
-  state.rows = [];
 
   INTERVALS.forEach((interval, i) => {
-    const row = { days: [null, null, null, null, null], today: null };
-    state.rows.push(row);
+    const row = state.rows[i] || { days: state.weeksData.map(() => null), today: null };
+    state.rows[i] = row;
 
     const tr = document.createElement('tr');
     tr.id = `row-${i}`;
@@ -60,12 +123,14 @@ function buildTable() {
     tdLabel.textContent = interval;
     tr.appendChild(tdLabel);
 
-    for (let d = 0; d < 5; d++) {
+    for (let d = 0; d < state.weeksData.length; d++) {
       const td = document.createElement('td');
       td.className = 'td-week';
       const inp = makeNumInput(`w${d}-${i}`, `Week -${d + 1} calls at ${interval}`);
+      inp.value = row.days[d] ?? '';
       inp.addEventListener('input', () => {
         row.days[d] = parseFloat(inp.value) || null;
+        state.weeksData[d].values[i] = row.days[d];
         scheduleRecalc();
       });
       td.appendChild(inp);
@@ -78,6 +143,7 @@ function buildTable() {
     const tdToday = document.createElement('td');
     tdToday.className = 'td-today';
     const todayInp = makeNumInput(`t-${i}`, `Today actual at ${interval}`);
+    todayInp.value = row.today ?? '';
     todayInp.addEventListener('input', () => {
       row.today = parseFloat(todayInp.value) || null;
       scheduleRecalc();
@@ -89,7 +155,7 @@ function buildTable() {
     addTd(tr, `cmpl-${i}`, 'td-cmpl');
     addTd(tr, `hp-${i}`,   'td-histp');
     addTd(tr, `rr-${i}`,   'td-rr');
-    addTd(tr, `rfcast-${i}`, 'td-reforecast'); // §24 Reforecast column
+    addTd(tr, `rfcast-${i}`, 'td-reforecast');
     addTd(tr, `bl-${i}`,   'td-blended');
     addTd(tr, `cf-${i}`,   '');
     addTd(tr, `rem-${i}`,  'td-rem');
@@ -1052,19 +1118,18 @@ function parseCSV(raw) {
 
   headers.forEach((h, idx) => {
     if (/^(interval|time|slot)/.test(h)) colMap.interval = idx;
-    else if (/^(wk1|week1|w1|week-1)/.test(h)) colMap.w0 = idx;
-    else if (/^(wk2|week2|w2|week-2)/.test(h)) colMap.w1 = idx;
-    else if (/^(wk3|week3|w3|week-3)/.test(h)) colMap.w2 = idx;
-    else if (/^(wk4|week4|w4|week-4)/.test(h)) colMap.w3 = idx;
-    else if (/^(wk5|week5|w5|week-5)/.test(h)) colMap.w4 = idx;
     else if (/^(today|actual|todayactual)/.test(h)) colMap.today = idx;
+    else {
+      const m = h.match(/^(wk|week|w)(\d+)$/);
+      if (m) colMap[`w${Math.max(0, parseInt(m[2], 10) - 1)}`] = idx;
+    }
   });
 
   const data = [];
   for (let r = 1; r < lines.length; r++) {
     const cols = lines[r].split(',').map(c => c.trim());
-    const entry = { days: [null,null,null,null,null], today: null };
-    for (let d = 0; d < 5; d++) {
+    const entry = { days: state.weeksData.map(() => null), today: null };
+    for (let d = 0; d < state.weeksData.length; d++) {
       const k = `w${d}`;
       if (colMap[k] !== undefined) {
         const v = parseFloat(cols[colMap[k]]);
@@ -1093,6 +1158,7 @@ function applyCSVData(result) {
     const inp = document.getElementById(`t-${i}`);
     if (inp) inp.value = entry.today !== null ? entry.today : '';
   });
+  syncWeeksDataFromRows();
   scheduleRecalc();
 }
 
@@ -1221,6 +1287,7 @@ function applyColumnPaste(colIndex, rawText) {
     }
     applied++;
   }
+  syncWeeksDataFromRows();
   scheduleRecalc();
   return applied;
 }
@@ -1241,7 +1308,7 @@ function handleTablePaste(e) {
     if (mRow) startRow = parseInt(mRow[1]);
     if (active.id.startsWith('t-')) startCol = 'today';
     else {
-      const mCol = active.id.match(/^w(\d)-/);
+      const mCol = active.id.match(/^w(\d+)-/);
       if (mCol) startCol = parseInt(mCol[1]);
     }
   }
@@ -1260,12 +1327,12 @@ function handleTablePaste(e) {
         applied++;
       } else {
         const colD = (typeof startCol === 'number' ? startCol : 0) + ci;
-        if (colD < 5) {
+        if (colD < state.weeksData.length) {
           state.rows[rowIdx].days[colD] = v;
           const inp = document.getElementById(`w${colD}-${rowIdx}`);
           if (inp) inp.value = v;
           applied++;
-        } else if (colD === 5) {
+        } else if (colD === state.weeksData.length) {
           state.rows[rowIdx].today = v;
           const inp = document.getElementById(`t-${rowIdx}`);
           if (inp) inp.value = v;
@@ -1275,7 +1342,7 @@ function handleTablePaste(e) {
     });
   });
 
-  if (applied > 0) { scheduleRecalc(); showToast(`Pasted ${applied} values`); }
+  if (applied > 0) { syncWeeksDataFromRows(); renderWeeks(); scheduleRecalc(); showToast(`Pasted ${applied} values`); }
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -1303,7 +1370,7 @@ function loadExample() {
 
   INTERVALS.forEach((_, i) => {
     const b = base[i] || 2;
-    for (let d = 0; d < 5; d++) {
+    for (let d = 0; d < state.weeksData.length; d++) {
       const v = Math.max(0, Math.round(b * rng(i * 7 + d * 13 + 42)));
       state.rows[i].days[d] = v;
       const inp = document.getElementById(`w${d}-${i}`);
@@ -1320,26 +1387,123 @@ function loadExample() {
   document.getElementById('availableCapacityInput').value = 2400;
   state.availableCapacity = 2400;
 
+  syncWeeksDataFromRows();
+  renderWeeks();
   scheduleRecalc();
   showToast('Example loaded — spike severity + reforecast demo active');
 }
 
 function clearAll() {
   state.rows.forEach((_, i) => {
-    state.rows[i] = { days: [null,null,null,null,null], today: null };
-    for (let d = 0; d < 5; d++) {
+    state.rows[i] = { days: state.weeksData.map(() => null), today: null };
+    for (let d = 0; d < state.weeksData.length; d++) {
       const inp = document.getElementById(`w${d}-${i}`); if (inp) inp.value = '';
     }
     const inp = document.getElementById(`t-${i}`); if (inp) inp.value = '';
   });
-  ['pasteW1','pasteW2','pasteW3','pasteW4','pasteW5','pasteToday'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.value = '';
-  });
+  document.querySelectorAll('.paste-ta').forEach(el => { el.value = ''; });
   document.getElementById('dailyForecastInput').value = '';
   document.getElementById('availableCapacityInput').value = '';
   state.dailyForecast = null; state.availableCapacity = null; state.analysis = null;
+  syncWeeksDataFromRows();
+  renderWeeks();
   scheduleRecalc();
   showToast('All data cleared');
+}
+
+
+function initWeekControls() {
+  const addBtn = document.getElementById('addWeek');
+  const removeBtn = document.getElementById('removeWeek');
+  if (!addBtn || !removeBtn) return;
+
+  function rerenderWeekUI(scrollToEnd = false) {
+    const prevRows = state.rows.map(r => ({ days: [...r.days], today: r.today }));
+    restoreRowsFromWeeksData(prevRows);
+    renderWeeks();
+    buildTable();
+    scheduleRecalc();
+    if (scrollToEnd) {
+      const grid = document.getElementById('pasteGrid');
+      if (grid) grid.scrollTo({ left: grid.scrollWidth, behavior: 'smooth' });
+    }
+  }
+
+  addBtn.addEventListener('click', () => {
+    const idx = state.weeksData.length + 1;
+    state.weeksData.push({ label: `WK -${idx}`, values: state.rows.map(() => null) });
+    rerenderWeekUI(true);
+  });
+
+  removeBtn.addEventListener('click', () => {
+    if (state.weeksData.length <= 1) {
+      showToast('At least one historical week is required');
+      return;
+    }
+    state.weeksData.pop();
+    state.rows.forEach(r => { r.days = r.days.slice(0, state.weeksData.length); });
+    rerenderWeekUI();
+  });
+}
+
+function generateWFMInsight(data) {
+  if (!data) return 'Add intraday data first, then I can provide WFM guidance.';
+  if (data.variancePct > 10) return 'Volume spike detected. Recommend immediate OT or cross-skill allocation.';
+  if (data.variancePct < -10) return 'Overstaffing risk. Consider shrinkage pullback or VTO.';
+  if (data.backlogRisk === 'Critical' || data.backlogRisk === 'Risk') return 'Service level likely to drop. Trigger reforecast and staffing adjustment.';
+  return `Traffic is ${data.trafficPattern || 'stable'} with variance ${data.variancePct?.toFixed(1) ?? 'N/A'}%. Continue monitoring and keep staffing aligned.`;
+}
+
+function initCopilot() {
+  const panel = document.getElementById('copilotPanel');
+  const toggle = document.getElementById('copilotToggle');
+  const collapse = document.getElementById('copilotCollapse');
+  const sendBtn = document.getElementById('copilotSend');
+  const input = document.getElementById('copilotInput');
+  const messages = document.getElementById('copilotMessages');
+  if (!panel || !toggle || !sendBtn || !input || !messages) return;
+
+  const appendMsg = (text, who) => {
+    const m = document.createElement('div');
+    m.className = `copilot-msg copilot-msg--${who}`;
+    m.textContent = text;
+    messages.appendChild(m);
+    messages.scrollTop = messages.scrollHeight;
+  };
+
+  const send = () => {
+    const q = input.value.trim();
+    if (!q) return;
+    appendMsg(q, 'user');
+    input.value = '';
+
+    const a = state.analysis;
+    const latestBacklog = a?.backlog?.reduce((v, x) => x ? x.label : v, null);
+    const latestProjection = a?.blended?.reduce((v, x) => x !== null ? x : v, null);
+    const latestRf = a?.reforecast?.reduce((v, x) => x !== null ? x : v, null);
+    const data = {
+      trafficPattern: a?.trafficPattern?.label,
+      cumulativeToday: a?.cumActual?.reduce((v, x) => x !== null ? x : v, null),
+      expectedByNow: a?.cumHist?.reduce((v, x) => x !== null ? x : v, null),
+      variancePct: a?.overallVariance ?? 0,
+      projection: latestProjection,
+      reforecastEOD: latestRf,
+      backlogRisk: latestBacklog,
+    };
+    appendMsg(generateWFMInsight(data), 'ai');
+  };
+
+  const setOpen = open => {
+    panel.classList.toggle('open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+  };
+
+  toggle.addEventListener('click', () => setOpen(!panel.classList.contains('open')));
+  if (collapse) collapse.addEventListener('click', () => setOpen(false));
+  sendBtn.addEventListener('click', send);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+
+  appendMsg('Hi, I am your WFM Co-Pilot. Ask about risk, staffing, or variance spikes.', 'ai');
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -1389,24 +1553,29 @@ function downloadReport() {
    INIT
 ───────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
+  restoreRowsFromWeeksData();
+  renderWeeks();
   buildTable();
   initCharts();
   initTooltips();
   initDataSourceMode(); // §23
+  initWeekControls();
+  initCopilot();
   runRecalc();
 
   document.getElementById('loadExampleBtn').addEventListener('click', loadExample);
   document.getElementById('clearDataBtn').addEventListener('click', clearAll);
 
-  document.querySelectorAll('.btn--apply').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const col = btn.dataset.col;
-      const taId = col === 'today' ? 'pasteToday' : `pasteW${parseInt(col) + 1}`;
-      const ta = document.getElementById(taId);
-      if (!ta || !ta.value.trim()) { showToast('Nothing to paste'); return; }
-      const n = applyColumnPaste(col === 'today' ? 'today' : col, ta.value);
-      showToast(`Applied ${n} values to ${col === 'today' ? 'Today Actual' : 'Week −' + (parseInt(col) + 1)}`);
-    });
+  document.getElementById('pasteGrid').addEventListener('click', e => {
+    const btn = e.target.closest('.btn--apply');
+    if (!btn) return;
+    const col = btn.dataset.col;
+    const taId = col === 'today' ? 'pasteToday' : `pasteW${parseInt(col, 10) + 1}`;
+    const ta = document.getElementById(taId);
+    if (!ta || !ta.value.trim()) { showToast('Nothing to paste'); return; }
+    const n = applyColumnPaste(col === 'today' ? 'today' : col, ta.value);
+    if (col !== 'today') state.weeksData[parseInt(col, 10)].values = ta.value.split('\n').map(v => parseFloat(v)).map(v => (Number.isFinite(v) ? v : null));
+    showToast(`Applied ${n} values to ${col === 'today' ? 'Today Actual' : 'Week −' + (parseInt(col, 10) + 1)}`);
   });
 
   document.getElementById('tableWrapper').addEventListener('paste', handleTablePaste);
