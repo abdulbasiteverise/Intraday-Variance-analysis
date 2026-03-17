@@ -258,7 +258,11 @@
             <p class="section-desc">Paste each column vertically (one value per line) then click Apply — or click any table cell and use <kbd>Ctrl+V</kbd> for Excel multi-column paste.</p>
           </div>
         </div>
-        <div class="paste-grid">
+        <div class="week-controls">
+          <button class="btn btn--ghost btn--sm" id="addWeek">+ Add Week</button>
+          <button class="btn btn--ghost btn--sm" id="removeWeek">- Remove Week</button>
+        </div>
+        <div class="paste-grid" id="pasteGrid">
           <div class="paste-col">
             <div class="paste-col-label"><span class="week-badge week-badge--hist">Wk −1</span></div>
             <textarea class="paste-ta" id="pasteW1" placeholder="19&#10;24&#10;30&#10;38&#10;55..." rows="5"></textarea>
@@ -410,10 +414,10 @@
             <span class="legend-chip legend-chip--red">&gt;10% Major</span>
           </div>
         </div>
-        <div class="table-scroller" id="tableWrapper">
+        <div class="table-scroller table-container" id="tableWrapper">
           <table class="data-table" id="dataTable" role="grid">
             <thead>
-              <tr class="th-group-row">
+              <tr class="th-group-row" id="tableGroupHeaderRow">
                 <th class="th-sticky-label" rowspan="2">Interval</th>
                 <th colspan="5" class="th-group th-group--hist">Historical Weeks</th>
                 <th colspan="2" class="th-group th-group--calc">Calculated</th>
@@ -421,7 +425,7 @@
                 <th colspan="5" class="th-group th-group--models">Forecast Models</th>
                 <th colspan="2" class="th-group th-group--ops">Operations</th>
               </tr>
-              <tr class="th-sub-row">
+              <tr class="th-sub-row" id="tableSubHeaderRow">
                 <th class="th-sub th-week" data-tip="Call volume one week ago.">Wk −1</th>
                 <th class="th-sub th-week" data-tip="Call volume two weeks ago.">Wk −2</th>
                 <th class="th-sub th-week" data-tip="Call volume three weeks ago.">Wk −3</th>
@@ -530,6 +534,20 @@
       <span>Built by <strong>Abdul Basit</strong> · Workforce Intelligence Suite · Intraday Intelligence Dashboard v4</span>
     </div>
   </footer>
+
+
+  <button id="copilotToggle" aria-controls="copilotPanel" aria-expanded="false">AI</button>
+  <div id="copilotPanel" class="copilot-panel" aria-live="polite">
+    <div class="copilot-header">
+      <h3>WFM Co-Pilot</h3>
+      <button id="copilotCollapse" aria-label="Collapse copilot">—</button>
+    </div>
+    <div class="copilot-messages" id="copilotMessages"></div>
+    <div class="copilot-input-row">
+      <input id="copilotInput" type="text" placeholder="Ask about risk, staffing, or variance..." />
+      <button id="copilotSend">Send</button>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
