@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="google-site-verification" content="xBdSh16zd_L6N-CdYJQRCap0vq03eIj-KZHkD684Od0" />
+  <meta name="google-site-verification" content="acRZkEOgEaeTDYUVPuclMUXMAiluapMZMztuzAuppk4" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intraday Variance Analysis Tool + Guide (WFM) | Abdul Basit</title>
+  <meta name="description" content="Analyze volume, AHT, and staffing variance in real-time. Free WFM intraday tool with decision engine, reforecasting, and AI copilot. Built by Abdul Basit." />
+  <meta name="keywords" content="intraday variance analysis, WFM intraday management, call center reforecasting, real-time workforce management, contact center capacity planning, AHT vs volume impact, intraday staffing decisions" />
+  <meta name="author" content="Abdul Basit" />
+  <meta property="og:title" content="Intraday Variance Analysis Tool (WFM) | Abdul Basit" />
+  <meta property="og:description" content="Real-time WFM intraday decision engine with reforecasting, AI copilot, and pattern intelligence." />
+  <meta property="og:type" content="website" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Intraday Variance Analysis Engine",
+    "description": "Real-time WFM intraday decision engine with reforecasting, AI copilot, and pattern intelligence.",
+    "author": { "@type": "Person", "name": "Abdul Basit" },
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web Browser",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Syne:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- ═══ FUNCTIONAL STYLES (JS class hooks, badges, table, charts) ═══ -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- ═══ LAYOUT & STRUCTURAL OVERRIDE STYLES ═══ -->
+  <style>
+    /* ── BASE ────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: #0f172a;
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      color: #e2e8f0;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── AMBIENT (keep decorative background) ──────────── */
+    .ambient { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .ambient__grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(56,189,248,.018) 1px, transparent 1px), linear-gradient(90deg, rgba(56,189,248,.018) 1px, transparent 1px); background-size: 48px 48px; mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, black 20%, transparent 100%); }
+    .ambient__orb { position: absolute; border-radius: 50%; filter: blur(120px); pointer-events: none; }
+    .ambient__orb--1 { width: 700px; height: 700px; top: -300px; left: -150px; opacity: .28; background: radial-gradient(circle, rgba(59,130,246,.2), transparent 70%); }
+    .ambient__orb--2 { width: 600px; height: 600px; top: -200px; right: -100px; opacity: .22; background: radial-gradient(circle, rgba(129,140,248,.18), transparent 70%); }
+    .ambient__orb--3 { width: 500px; height: 500px; bottom: 10%; left: 50%; transform: translateX(-50%); opacity: .14; background: radial-gradient(circle, rgba(34,197,94,.12), transparent 70%); }
+
+    /* ── SUITE NAV ─────────────────────────────────────── */
+    .suite-nav {
+      position: relative; z-index: 201;
+      display: flex; gap: 6px; flex-wrap: wrap;
+      padding: 8px 24px;
+      background: rgba(6,11,24,.9);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(12px);
+    }
+    .suite-nav a {
+      color: #64748b; text-decoration: none; font-size: 12px; font-weight: 500;
+      padding: 4px 10px; border-radius: 6px; border: 1px solid transparent;
+      transition: all .18s ease;
+    }
+    .suite-nav a:hover { color: #38bdf8; background: rgba(56,189,248,.08); border-color: rgba(56,189,248,.2); }
+
+    /* ── TOP NAV ───────────────────────────────────────── */
+    .nav-header {
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(15,23,42,.88);
+      backdrop-filter: blur(24px) saturate(1.8);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .nav-header::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(56,189,248,.3), transparent); }
+    .nav-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; height: 60px; display: flex; align-items: center; gap: 20px; }
+    .nav-brand { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .brand-logo { display: flex; filter: drop-shadow(0 0 8px rgba(56,189,248,.4)); }
+    .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
+    .brand-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 800; color: #f1f5ff; white-space: nowrap; }
+    .brand-sub   { font-size: 10px; color: #475569; font-family: 'IBM Plex Mono', monospace; }
+    .nav-links   { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+    .nav-link { font-size: 12px; font-weight: 500; color: #64748b; text-decoration: none; padding: 6px 12px; border-radius: 8px; border: 1px solid transparent; transition: all .18s ease; white-space: nowrap; }
+    .nav-link:hover { color: #38bdf8; background: rgba(56,189,248,.08); border-color: rgba(56,189,248,.2); }
+    .nav-link--active { color: #38bdf8; background: rgba(56,189,248,.08); border-color: rgba(56,189,248,.25); font-weight: 600; }
+    .nav-toggle { display: none; flex-direction: column; gap: 4px; background: none; border: 1px solid rgba(255,255,255,.12); padding: 7px 8px; border-radius: 6px; cursor: pointer; margin-left: auto; }
+    .nav-toggle span { display: block; width: 18px; height: 1.5px; background: #94a3b8; border-radius: 1px; }
+
+    /* ── APP CONTAINER ─────────────────────────────────── */
+    .app-container {
+      position: relative; z-index: 1;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px 24px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ── CARD BASE ─────────────────────────────────────── */
+    .card {
+      background: rgba(255,255,255,.05);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(255,255,255,.1);
+      box-shadow: 0 4px 24px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.04), 0 0 25px rgba(59,130,246,.08);
+      transition: transform .3s ease, box-shadow .3s ease;
+    }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.06), 0 0 35px rgba(59,130,246,.12); }
+
+    /* ── CARD HEADINGS ─────────────────────────────────── */
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px; font-weight: 700; color: #94a3b8;
+      text-transform: uppercase; letter-spacing: .08em;
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-title-icon { color: #38bdf8; font-size: 14px; }
+    .card-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px; font-weight: 800; color: #f1f5ff;
+      margin-bottom: 6px;
+    }
+
+    /* ══════════════════════════════════════════════════
+       SECTION 1 — HEADER CARD
+    ══════════════════════════════════════════════════ */
+    .header-card {
+      text-align: center;
+      padding: 48px 32px 40px;
+      background: linear-gradient(135deg, rgba(37,99,235,.12) 0%, rgba(124,58,237,.1) 50%, rgba(6,182,212,.08) 100%);
+      border-color: rgba(56,189,248,.2);
+      box-shadow: 0 4px 32px rgba(0,0,0,.4), 0 0 60px rgba(59,130,246,.12);
+    }
+    .header-card:hover { transform: none; }
+    .header-live-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(56,189,248,.08); border: 1px solid rgba(56,189,248,.22);
+      padding: 5px 14px; border-radius: 100px; margin-bottom: 20px;
+      font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #38bdf8; letter-spacing: .06em; font-weight: 600;
+    }
+    .header-live-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: #22c55e;
+      animation: pulse-live 1.8s ease-in-out infinite; box-shadow: 0 0 6px #22c55e;
+    }
+    @keyframes pulse-live { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.7)} }
+    .header-new-tag { background: rgba(34,197,94,.12); color: #22c55e; border: 1px solid rgba(34,197,94,.22); padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; }
+    .header-card h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(28px, 5vw, 48px); font-weight: 900; line-height: 1.08;
+      letter-spacing: -.03em; margin-bottom: 14px;
+      background: linear-gradient(135deg, #f1f5ff 0%, #93c5fd 45%, #818cf8 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .header-card h1 .accent {
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .header-card p {
+      font-size: 15px; color: #94a3b8; line-height: 1.7;
+      max-width: 600px; margin: 0 auto 28px;
+    }
+    .header-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    /* ── BUTTONS ───────────────────────────────────────── */
+    button, .btn {
+      font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+      padding: 10px 20px; border-radius: 10px; cursor: pointer;
+      border: 1px solid transparent; transition: all .22s ease;
+      display: inline-flex; align-items: center; gap: 6px;
+      text-decoration: none; white-space: nowrap;
+    }
+    .btn--primary, #loadExampleBtn {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      color: #fff; border: none;
+      box-shadow: 0 4px 16px rgba(59,130,246,.35);
+    }
+    .btn--primary:hover, #loadExampleBtn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(59,130,246,.5); }
+    .btn--ghost, #clearDataBtn {
+      background: rgba(255,255,255,.06); color: #94a3b8;
+      border-color: rgba(255,255,255,.12);
+    }
+    .btn--ghost:hover, #clearDataBtn:hover { color: #f1f5ff; background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.2); }
+    .btn--apply { background: linear-gradient(135deg, rgba(56,189,248,.14), rgba(129,140,248,.14)); color: #38bdf8; border: 1px solid rgba(56,189,248,.25); width: 100%; justify-content: center; }
+    .btn--apply:hover { background: linear-gradient(135deg, rgba(56,189,248,.24), rgba(129,140,248,.24)); transform: translateY(-1px); }
+    .btn--apply-today { background: linear-gradient(135deg, rgba(34,197,94,.12), rgba(56,189,248,.1)); color: #22c55e; border-color: rgba(34,197,94,.25); }
+    .btn--export { background: rgba(255,255,255,.06); color: #94a3b8; border: 1px solid rgba(255,255,255,.1); font-size: 13px; padding: 9px 16px; border-radius: 10px; }
+    .btn--export:hover { color: #38bdf8; border-color: rgba(56,189,248,.3); background: rgba(56,189,248,.08); transform: translateY(-1px); }
+    .btn--sm { font-size: 12px; padding: 6px 12px; }
+    #addWeek, #removeWeek { background: rgba(255,255,255,.06); color: #94a3b8; border: 1px solid rgba(255,255,255,.12); font-size: 12px; padding: 6px 12px; border-radius: 8px; }
+    #addWeek:hover, #removeWeek:hover { color: #38bdf8; border-color: rgba(56,189,248,.3); }
+
+    /* ══════════════════════════════════════════════════
+       SECTION 2 — KPI METRICS GRID CARD
+    ══════════════════════════════════════════════════ */
+    .metrics-card { padding: 24px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+    }
+    .kpi {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      padding: 18px 16px;
+      border-radius: 12px;
+      text-align: center;
+      transition: all .22s ease;
+      position: relative; overflow: hidden;
+    }
+    .kpi::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #3b82f6, #8b5cf6); opacity: 0; transition: opacity .22s ease; }
+    .kpi:hover { background: rgba(255,255,255,.07); border-color: rgba(56,189,248,.2); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.3), 0 0 16px rgba(59,130,246,.1); }
+    .kpi:hover::before { opacity: 1; }
+    .kpi-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px; font-weight: 900;
+      color: #f1f5ff; line-height: 1; margin-bottom: 8px;
+      letter-spacing: -.02em;
+    }
+    .kpi-value--accent { color: #38bdf8; }
+    .kpi-label {
+      font-size: 12px; color: #64748b; font-weight: 500;
+      letter-spacing: .02em; line-height: 1.4;
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+    .kpi--highlight { border-color: rgba(56,189,248,.2); background: rgba(56,189,248,.04); }
+    .kpi--highlight::before { opacity: 1; }
+
+    /* ══════════════════════════════════════════════════
+       SUMMARY METRIC CARDS GRID
+    ══════════════════════════════════════════════════ */
+    .metrics-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    /* Override metric-card to use card base style */
+    .metric-card {
+      position: relative; overflow: hidden;
+      background: rgba(255,255,255,.05); backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,.1); border-radius: 14px;
+      padding: 20px 22px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.4), 0 0 20px rgba(59,130,246,.06);
+      transition: transform .3s ease, box-shadow .3s ease;
+    }
+    .metric-card:hover { transform: translateY(-4px); box-shadow: 0 8px 40px rgba(0,0,0,.5), 0 0 30px rgba(59,130,246,.12); }
+
+    /* ══════════════════════════════════════════════════
+       SECTION 3 — INPUT CARD
+    ══════════════════════════════════════════════════ */
+    .input-card { padding: 24px; }
+
+    /* Data source toggle */
+    .datasource-bar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,.07); }
+    .datasource-label { display: flex; align-items: center; gap: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #475569; }
+    .mode-option input[type="radio"] { display: none; }
+    .mode-btn { display: flex; align-items: center; gap: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04); color: #64748b; cursor: pointer; transition: all .18s ease; white-space: nowrap; user-select: none; }
+    .mode-btn:hover { color: #38bdf8; border-color: rgba(56,189,248,.3); background: rgba(56,189,248,.08); }
+    .mode-option input:checked + .mode-btn { background: rgba(56,189,248,.1); color: #38bdf8; border-color: rgba(56,189,248,.35); box-shadow: 0 0 12px rgba(56,189,248,.1); }
+    .mode-option input:checked + .mode-btn--auto { background: rgba(249,115,22,.1); color: #f97316; border-color: rgba(249,115,22,.35); }
+
+    /* Paste grid */
+    .paste-section-header { margin-bottom: 14px; }
+    .paste-section-header h2 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: #f1f5ff; display: flex; align-items: center; gap: 8px; }
+    .paste-section-header p { font-size: 12px; color: #64748b; margin-top: 4px; line-height: 1.5; }
+    .paste-section-header kbd { background: rgba(255,255,255,.08); padding: 1px 5px; border-radius: 4px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+    .week-controls { display: flex; gap: 8px; margin-bottom: 14px; }
+    .paste-grid { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: thin; scrollbar-color: rgba(56,189,248,.2) transparent; }
+    .paste-grid::-webkit-scrollbar { height: 4px; }
+    .paste-grid::-webkit-scrollbar-thumb { background: rgba(56,189,248,.25); border-radius: 2px; }
+    .paste-col { display: flex; flex-direction: column; gap: 8px; min-width: 120px; flex-shrink: 0; }
+    .paste-col-label { display: flex; justify-content: center; }
+    .week-badge { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 4px; letter-spacing: .04em; }
+    .week-badge--hist  { background: rgba(56,189,248,.1); color: #38bdf8; border: 1px solid rgba(56,189,248,.22); }
+    .week-badge--today { background: rgba(34,197,94,.1); color: #22c55e; border: 1px solid rgba(34,197,94,.22); }
+    .paste-ta { width: 100%; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #e2e8f0; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; padding: 10px; resize: vertical; min-height: 90px; line-height: 1.7; transition: border-color .18s, box-shadow .18s; }
+    .paste-ta:focus { outline: none; border-color: rgba(56,189,248,.4); box-shadow: 0 0 0 3px rgba(56,189,248,.08); }
+    .paste-ta--today { border-color: rgba(34,197,94,.22); }
+    .paste-ta--today:focus { border-color: rgba(34,197,94,.4); box-shadow: 0 0 0 3px rgba(34,197,94,.08); }
+    .paste-col.fade-in-col { animation: col-in .28s ease; }
+    @keyframes col-in { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+
+    /* Config inputs */
+    .config-row { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 20px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.07); }
+    .config-card { flex: 1; min-width: 220px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 16px 18px; }
+    .config-label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #94a3b8; margin-bottom: 10px; }
+    .config-label-icon { color: #38bdf8; }
+    .config-input { width: 100%; font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #f1f5ff; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; padding: 10px 14px; transition: all .18s ease; -moz-appearance: textfield; }
+    .config-input::-webkit-outer-spin-button, .config-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .config-input:focus { outline: none; border-color: rgba(56,189,248,.4); box-shadow: 0 0 0 3px rgba(56,189,248,.08); }
+    .config-input::placeholder { color: #374151; }
+    .config-hint { display: block; font-size: 11px; color: #374151; margin-top: 6px; font-family: 'IBM Plex Mono', monospace; }
+
+    /* Auto section */
+    .auto-grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr; gap: 14px; }
+    .auto-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; transition: all .2s ease; }
+    .auto-card--active { border-color: rgba(56,189,248,.2); }
+    .auto-card--future { opacity: .55; }
+    .auto-card-header { display: flex; align-items: flex-start; gap: 10px; }
+    .auto-card-icon { font-size: 20px; line-height: 1; flex-shrink: 0; }
+    .auto-card-title { font-size: 13px; font-weight: 700; color: #f1f5ff; margin-bottom: 3px; }
+    .auto-card-status { font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; display: inline-block; }
+    .auto-card-status--ready { background: rgba(34,197,94,.1); color: #22c55e; border: 1px solid rgba(34,197,94,.22); }
+    .auto-card-status--soon  { background: rgba(234,179,8,.08); color: #eab308; border: 1px solid rgba(234,179,8,.2); }
+    .auto-card-desc { font-size: 12px; color: #64748b; line-height: 1.6; }
+    .auto-card-desc code { font-family: 'IBM Plex Mono', monospace; font-size: 11px; background: rgba(255,255,255,.06); padding: 1px 5px; border-radius: 3px; color: #38bdf8; }
+    .csv-upload-label { display: flex; flex-direction: column; align-items: center; gap: 8px; border: 1.5px dashed rgba(56,189,248,.28); border-radius: 8px; padding: 18px; cursor: pointer; transition: all .18s ease; color: #94a3b8; font-size: 12px; text-align: center; background: rgba(56,189,248,.03); position: relative; }
+    .csv-upload-label:hover { border-color: rgba(56,189,248,.55); background: rgba(56,189,248,.07); color: #38bdf8; }
+    .csv-input { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; top: 0; left: 0; }
+
+    /* ══════════════════════════════════════════════════
+       TABLE CARD
+    ══════════════════════════════════════════════════ */
+    .table-card { padding: 0; overflow: hidden; }
+    .table-card-header { padding: 20px 24px 16px; display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.07); }
+    .legend-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .legend-chip { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 4px; letter-spacing: .04em; }
+    .legend-chip--green  { background: rgba(34,197,94,.08); color: #22c55e; border: 1px solid rgba(34,197,94,.2); }
+    .legend-chip--yellow { background: rgba(234,179,8,.08); color: #eab308; border: 1px solid rgba(234,179,8,.18); }
+    .legend-chip--red    { background: rgba(239,68,68,.08); color: #ef4444; border: 1px solid rgba(239,68,68,.2); }
+    .table-scroller { overflow-x: auto; scrollbar-width: thin; scrollbar-color: rgba(56,189,248,.2) transparent; }
+    .table-scroller::-webkit-scrollbar { height: 5px; }
+    .table-scroller::-webkit-scrollbar-thumb { background: rgba(56,189,248,.25); border-radius: 3px; }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 11px; font-family: 'IBM Plex Mono', monospace; white-space: nowrap; background: rgba(10,15,30,.6); }
+    .th-group-row th, .th-sub-row th { background: rgba(255,255,255,.04); color: #475569; font-weight: 600; letter-spacing: .04em; padding: 9px 12px; text-align: center; border-bottom: 1px solid rgba(255,255,255,.07); position: sticky; top: 0; z-index: 10; }
+    .th-group { font-size: 10px; text-transform: uppercase; letter-spacing: .07em; font-family: 'Inter', sans-serif; }
+    .th-group--hist   { background: rgba(56,189,248,.06) !important; color: #38bdf8 !important; }
+    .th-group--calc   { background: rgba(129,140,248,.06) !important; color: #818cf8 !important; }
+    .th-group--today  { background: rgba(34,197,94,.06) !important; color: #22c55e !important; }
+    .th-group--models { background: rgba(249,115,22,.05) !important; color: #f97316 !important; }
+    .th-group--ops    { background: rgba(168,85,247,.05) !important; color: #a855f7 !important; }
+    .th-sub { font-size: 10px; color: #475569; font-weight: 600; cursor: default; }
+    .th-sub[data-tip] { cursor: help; }
+    .th-sub[data-tip]:hover { background: rgba(56,189,248,.08) !important; color: #38bdf8 !important; }
+    .th-sticky-label { position: sticky; left: 0; z-index: 20; background: rgba(10,15,30,.95); backdrop-filter: blur(8px); min-width: 68px; text-align: left; padding-left: 14px; }
+    .data-table tbody tr { border-bottom: 1px solid rgba(255,255,255,.04); transition: background .15s ease; }
+    .data-table tbody tr:hover { background: rgba(56,189,248,.04); }
+    .data-table tbody tr:last-child { border-bottom: none; }
+    .data-table td { padding: 6px 10px; text-align: center; color: #94a3b8; vertical-align: middle; }
+    .td-sticky { position: sticky; left: 0; z-index: 5; background: rgba(10,15,30,.9); backdrop-filter: blur(8px); font-weight: 600; color: #f1f5ff; text-align: left; padding-left: 14px; border-right: 1px solid rgba(255,255,255,.07); }
+    .data-table input[type="number"] { width: 58px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: #f1f5ff; border-radius: 5px; padding: 4px 6px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-align: center; transition: all .18s ease; -moz-appearance: textfield; }
+    .data-table input[type="number"]::-webkit-outer-spin-button,
+    .data-table input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .data-table input[type="number"]:focus { outline: none; border-color: rgba(56,189,248,.45); background: rgba(56,189,248,.07); box-shadow: 0 0 0 2px rgba(56,189,248,.1); }
+    .td-hist   { color: #38bdf8; font-weight: 600; }
+    .td-arrival { color: #06b6d4; }
+    .td-today { background: rgba(34,197,94,.03); }
+    .td-today input[type="number"] { border-color: rgba(34,197,94,.2); }
+    .td-today input[type="number"]:focus { border-color: rgba(34,197,94,.45); background: rgba(34,197,94,.06); }
+    .td-histp  { color: #818cf8; }
+    .td-rr     { color: #eab308; }
+    .td-reforecast { color: #f97316; font-weight: 700; }
+    .td-blended { color: #22c55e; font-weight: 600; }
+    .td-cmpl   { color: #475569; }
+    .td-rem    { color: #a855f7; }
+    .th-rfcast { background: rgba(249,115,22,.05) !important; color: #f97316 !important; }
+
+    /* Deviation badges */
+    .dev-badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 10px; }
+    .dev-nil   { color: #374151; }
+    .dev-green  { background: rgba(34,197,94,.1); color: #22c55e; border: 1px solid rgba(34,197,94,.2); }
+    .dev-yellow { background: rgba(234,179,8,.1); color: #eab308; border: 1px solid rgba(234,179,8,.2); }
+    .dev-red    { background: rgba(239,68,68,.1); color: #ef4444; border: 1px solid rgba(239,68,68,.2); }
+
+    /* Confidence badges */
+    .conf-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; }
+    .conf-dot   { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+    .conf-high  { background: rgba(34,197,94,.1); color: #22c55e; } .conf-high .conf-dot  { background: #22c55e; }
+    .conf-med   { background: rgba(234,179,8,.1); color: #eab308; } .conf-med .conf-dot   { background: #eab308; }
+    .conf-low   { background: rgba(239,68,68,.1); color: #ef4444; } .conf-low .conf-dot   { background: #ef4444; }
+
+    /* Backlog badges */
+    .bl-badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 10px; }
+    .bl-safe { background: rgba(34,197,94,.1); color: #22c55e; border: 1px solid rgba(34,197,94,.2); }
+    .bl-risk { background: rgba(234,179,8,.1); color: #eab308; border: 1px solid rgba(234,179,8,.2); }
+    .bl-crit { background: rgba(239,68,68,.1); color: #ef4444; border: 1px solid rgba(239,68,68,.2); }
+
+    /* Spike row highlights */
+    .row-spike-mild     { background: rgba(234,179,8,.04) !important; }
+    .row-spike-major    { background: rgba(249,115,22,.05) !important; }
+    .row-spike-critical { background: rgba(239,68,68,.06) !important; }
+
+    /* Spike card states */
+    .card-normal   { border-color: rgba(34,197,94,.25) !important; }
+    .card-drifting { border-color: rgba(234,179,8,.25) !important; }
+    .card-major    { border-color: rgba(239,68,68,.28) !important; }
+    .spike-clear    { border-color: rgba(34,197,94,.2) !important; }
+    .spike-mild     { border-color: rgba(234,179,8,.28) !important; animation: p-amber 2s ease-in-out infinite; }
+    .spike-major    { border-color: rgba(249,115,22,.3)  !important; animation: p-orange 1.5s ease-in-out infinite; }
+    .spike-critical { border-color: rgba(239,68,68,.36)  !important; animation: p-red 1.2s ease-in-out infinite; }
+    @keyframes p-amber  { 0%,100%{box-shadow:none} 50%{box-shadow:0 0 24px rgba(234,179,8,.35)} }
+    @keyframes p-orange { 0%,100%{box-shadow:none} 50%{box-shadow:0 0 28px rgba(249,115,22,.45)} }
+    @keyframes p-red    { 0%,100%{box-shadow:none} 50%{box-shadow:0 0 32px rgba(239,68,68,.55)} }
+    .acc-excellent  { border-color: rgba(34,197,94,.25) !important; }
+    .acc-good       { border-color: rgba(6,182,212,.22)  !important; }
+    .acc-acceptable { border-color: rgba(234,179,8,.22)  !important; }
+    .acc-poor       { border-color: rgba(239,68,68,.25)  !important; }
+    .var-stable   { border-color: rgba(34,197,94,.22) !important; }
+    .var-moderate { border-color: rgba(234,179,8,.22) !important; }
+    .var-high     { border-color: rgba(239,68,68,.25) !important; }
+
+    /* mc- (metric card internals) */
+    .mc-glow { position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; border-radius: 50%; filter: blur(28px); pointer-events: none; opacity: .5; background: radial-gradient(circle, rgba(56,189,248,.25), transparent); transition: opacity .3s; }
+    .metric-card:hover .mc-glow { opacity: .9; }
+    .mc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .mc-label { font-size: 11px; color: #64748b; font-weight: 500; letter-spacing: .03em; }
+    .mc-value { font-family: 'Syne', sans-serif; font-size: 30px; font-weight: 900; color: #f1f5ff; line-height: 1; margin-bottom: 6px; letter-spacing: -.025em; }
+    .mc-tag   { font-size: 11px; color: #475569; font-family: 'IBM Plex Mono', monospace; }
+
+    /* Traffic pattern classes */
+    .tp-normal  { color: #22c55e; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 700; }
+    .tp-front   { color: #38bdf8; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 700; }
+    .tp-delayed { color: #818cf8; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 700; }
+    .tp-surge   { color: #ef4444; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 700; }
+    .tp-double  { color: #f97316; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 700; }
+    .tp-midday  { color: #06b6d4; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 700; }
+
+    /* ══════════════════════════════════════════════════
+       CHARTS CARD
+    ══════════════════════════════════════════════════ */
+    .charts-card { padding: 24px; }
+    .charts-grid { display: grid; grid-template-columns: 1.8fr 1fr 1fr; gap: 14px; }
+    .chart-inner { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); border-radius: 12px; padding: 16px; }
+    .chart-inner-wide { grid-column: span 1; }
+    .chart-card-title { font-size: 12px; font-weight: 600; color: #94a3b8; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+    .chart-wrap { position: relative; height: 200px; }
+    .chart-inner-wide .chart-wrap { height: 240px; }
+
+    /* ══════════════════════════════════════════════════
+       INTELLIGENCE PANELS CARD
+    ══════════════════════════════════════════════════ */
+    .intelligence-card { padding: 24px; }
+    .insights-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    .panel { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+    .panel-hdr { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,.07); background: rgba(255,255,255,.02); }
+    .panel-hdr-accent { width: 3px; height: 14px; border-radius: 2px; flex-shrink: 0; background: linear-gradient(180deg, #38bdf8, #818cf8); }
+    .panel--narrative .panel-hdr-accent { background: linear-gradient(180deg, #a855f7, #38bdf8); }
+    .panel--periods .panel-hdr-accent   { background: linear-gradient(180deg, #22c55e, #06b6d4); }
+    .panel-icon  { font-size: 15px; }
+    .panel-title { font-size: 12px; font-weight: 700; color: #f1f5ff; flex: 1; }
+    .panel-body  { padding: 14px 16px; flex: 1; overflow-y: auto; max-height: 260px; scrollbar-width: thin; scrollbar-color: rgba(56,189,248,.2) transparent; }
+    .panel-body::-webkit-scrollbar { width: 3px; }
+    .panel-body::-webkit-scrollbar-thumb { background: rgba(56,189,248,.2); border-radius: 2px; }
+
+    /* Insight items */
+    .ins-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; border-radius: 8px; margin-bottom: 6px; font-size: 12px; line-height: 1.55; border: 1px solid transparent; }
+    .ins-icon  { flex-shrink: 0; font-size: 14px; line-height: 1.4; }
+    .ins-green  { background: rgba(34,197,94,.07);   color: #94a3b8; border-color: rgba(34,197,94,.18); }
+    .ins-yellow { background: rgba(234,179,8,.07);   color: #94a3b8; border-color: rgba(234,179,8,.18); }
+    .ins-red    { background: rgba(239,68,68,.08);   color: #94a3b8; border-color: rgba(239,68,68,.2); }
+    .ins-blue   { background: rgba(56,189,248,.07);  color: #94a3b8; border-color: rgba(56,189,248,.18); }
+    .ins-orange { background: rgba(249,115,22,.07);  color: #94a3b8; border-color: rgba(249,115,22,.18); }
+
+    /* Narrative */
+    .n-line    { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; font-size: 12px; color: #94a3b8; line-height: 1.55; }
+    .n-dot     { width: 6px; height: 6px; border-radius: 50%; background: #38bdf8; flex-shrink: 0; margin-top: 5px; }
+    .n-section { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 700; color: #475569; letter-spacing: .08em; text-transform: uppercase; padding: 8px 0 3px; }
+
+    /* Period breakdown */
+    .period-row   { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+    .period-row:last-child { border-bottom: none; }
+    .period-label { font-size: 11px; color: #94a3b8; font-family: 'IBM Plex Mono', monospace; }
+    .period-val   { font-weight: 700; font-size: 12px; font-family: 'IBM Plex Mono', monospace; }
+    .pv-green   { color: #22c55e; }
+    .pv-yellow  { color: #eab308; }
+    .pv-red     { color: #ef4444; }
+    .pv-neutral { color: #475569; }
+
+    /* ══════════════════════════════════════════════════
+       DECISION ENGINE CARD
+    ══════════════════════════════════════════════════ */
+    .decision-card-wrap { padding: 24px; }
+    .decision-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+    .decision-empty { grid-column: 1/-1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 40px; background: rgba(255,255,255,.02); border: 1.5px dashed rgba(255,255,255,.1); border-radius: 12px; color: #475569; text-align: center; font-size: 14px; }
+    .decision-empty-icon { font-size: 32px; opacity: .4; }
+    .decision-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 18px 20px; transition: all .22s ease; position: relative; overflow: hidden; }
+    .decision-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; border-radius: 12px 12px 0 0; }
+    .decision-card--red    { border-color: rgba(239,68,68,.25); } .decision-card--red::before    { background: linear-gradient(90deg, #ef4444, #f97316); }
+    .decision-card--yellow { border-color: rgba(234,179,8,.22); } .decision-card--yellow::before { background: linear-gradient(90deg, #eab308, #f97316); }
+    .decision-card--green  { border-color: rgba(34,197,94,.22); } .decision-card--green::before  { background: linear-gradient(90deg, #22c55e, #06b6d4); }
+    .decision-card--blue   { border-color: rgba(56,189,248,.22); }.decision-card--blue::before   { background: linear-gradient(90deg, #38bdf8, #818cf8); }
+    .decision-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+    .decision-badge { display: inline-flex; align-items: center; gap: 4px; font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; margin-bottom: 10px; }
+    .decision-badge--red    { background: rgba(239,68,68,.1); color: #ef4444; border: 1px solid rgba(239,68,68,.22); }
+    .decision-badge--yellow { background: rgba(234,179,8,.1); color: #eab308; border: 1px solid rgba(234,179,8,.2); }
+    .decision-badge--green  { background: rgba(34,197,94,.1); color: #22c55e; border: 1px solid rgba(34,197,94,.2); }
+    .decision-badge--blue   { background: rgba(56,189,248,.1); color: #38bdf8; border: 1px solid rgba(56,189,248,.2); }
+    .decision-title   { font-size: 14px; font-weight: 700; color: #f1f5ff; margin-bottom: 8px; }
+    .decision-actions { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .decision-actions li { font-size: 12px; color: #94a3b8; padding-left: 16px; position: relative; line-height: 1.5; }
+    .decision-actions li::before { content: '→'; position: absolute; left: 0; color: #38bdf8; font-size: 11px; }
+
+    /* ══════════════════════════════════════════════════
+       RISK METER CARD
+    ══════════════════════════════════════════════════ */
+    .risk-card { padding: 24px; }
+    .risk-meter-card { display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
+    .risk-gauge-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; }
+    .risk-score-display { text-align: center; }
+    .risk-score-value { font-family: 'Syne', sans-serif; font-size: 38px; font-weight: 900; color: #f1f5ff; line-height: 1; letter-spacing: -.03em; transition: color .4s ease; }
+    .risk-score-label { font-size: 11px; color: #475569; font-family: 'IBM Plex Mono', monospace; margin-top: 5px; transition: color .4s ease; }
+    .risk-factors { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 240px; }
+    .risk-factor-empty { color: #475569; font-size: 13px; }
+    .risk-factor { display: flex; align-items: center; gap: 12px; padding: 9px 14px; border-radius: 8px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); transition: background .18s; }
+    .risk-factor:hover { background: rgba(255,255,255,.055); }
+    .risk-factor-name { font-size: 12px; color: #94a3b8; min-width: 140px; white-space: nowrap; }
+    .risk-factor-bar-wrap { flex: 1; height: 6px; background: rgba(255,255,255,.08); border-radius: 3px; overflow: hidden; }
+    .risk-factor-bar { height: 100%; border-radius: 3px; transition: width .6s cubic-bezier(.4,0,.2,1); }
+    .risk-factor-bar--green  { background: linear-gradient(90deg, #22c55e, #06b6d4); }
+    .risk-factor-bar--yellow { background: linear-gradient(90deg, #eab308, #f97316); }
+    .risk-factor-bar--red    { background: linear-gradient(90deg, #f97316, #ef4444); }
+    .risk-factor-val { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 700; min-width: 48px; text-align: right; }
+
+    /* ══════════════════════════════════════════════════
+       SIMULATOR CARD
+    ══════════════════════════════════════════════════ */
+    .simulator-card { padding: 0; overflow: hidden; }
+    .simulator-details { background: transparent; border: none; border-radius: 0; box-shadow: none; }
+    .simulator-summary { display: flex; align-items: center; gap: 12px; padding: 20px 24px; cursor: pointer; list-style: none; user-select: none; transition: background .18s; }
+    .simulator-summary:hover { background: rgba(255,255,255,.03); }
+    .simulator-summary::-webkit-details-marker { display: none; }
+    .sim-title    { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: #f1f5ff; }
+    .sim-subtitle { font-size: 12px; color: #475569; margin-left: auto; }
+    .sim-chevron  { color: #475569; font-size: 12px; transition: transform .18s ease; }
+    .simulator-details[open] .sim-chevron { transform: rotate(180deg); }
+    .simulator-body { padding: 24px; border-top: 1px solid rgba(255,255,255,.07); display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+    .sim-sliders { display: flex; flex-direction: column; gap: 22px; }
+    .sim-slider-group { display: flex; flex-direction: column; gap: 8px; }
+    .sim-label { display: flex; justify-content: space-between; font-size: 13px; color: #94a3b8; font-weight: 500; }
+    .sim-val   { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #38bdf8; font-weight: 700; }
+    .sim-range { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; background: linear-gradient(90deg, rgba(56,189,248,.3), rgba(129,140,248,.3)); border-radius: 2px; outline: none; cursor: pointer; }
+    .sim-range::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: linear-gradient(135deg, #38bdf8, #818cf8); cursor: pointer; box-shadow: 0 0 10px rgba(56,189,248,.5); transition: all .18s ease; }
+    .sim-range::-webkit-slider-thumb:hover { box-shadow: 0 0 18px rgba(56,189,248,.7); transform: scale(1.15); }
+    .sim-range-marks { display: flex; justify-content: space-between; font-size: 10px; color: #374151; font-family: 'IBM Plex Mono', monospace; }
+    .sim-results { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-content: start; }
+    .sim-result-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 10px; padding: 14px 16px; transition: all .18s ease; }
+    .sim-result-card:hover { background: rgba(255,255,255,.065); transform: translateY(-1px); }
+    .sim-result-label { font-size: 10px; color: #475569; margin-bottom: 6px; font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .06em; }
+    .sim-result-value { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 900; color: #f1f5ff; letter-spacing: -.02em; transition: color .3s ease; }
+
+    /* ══════════════════════════════════════════════════
+       MISTAKE DETECTOR
+    ══════════════════════════════════════════════════ */
+    .mistake-box { display: flex; flex-direction: column; gap: 10px; }
+    .mistake-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; border-radius: 10px; border: 1px solid rgba(234,179,8,.22); background: rgba(234,179,8,.05); font-size: 13px; color: #f1f5ff; line-height: 1.6; animation: pop-in .3s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes pop-in { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+    .mistake-icon  { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .mistake-title { font-weight: 700; color: #eab308; margin-bottom: 3px; font-size: 13px; }
+
+    /* ══════════════════════════════════════════════════
+       EXPORT CARD
+    ══════════════════════════════════════════════════ */
+    .export-card { overflow: hidden; padding: 0; }
+    .export-card-header { padding: 18px 24px 14px; border-bottom: 1px solid rgba(255,255,255,.07); }
+    .export-preview { padding: 16px 20px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #475569; line-height: 1.72; max-height: 200px; overflow-y: auto; white-space: pre-wrap; background: rgba(6,11,24,.5); scrollbar-width: thin; scrollbar-color: rgba(56,189,248,.2) transparent; }
+    .export-actions { display: flex; gap: 8px; flex-wrap: wrap; padding: 14px 20px; background: rgba(255,255,255,.02); }
+    .ph { color: #374151; font-size: 13px; font-style: italic; }
+
+    /* ══════════════════════════════════════════════════
+       SEO CONTENT CARD
+    ══════════════════════════════════════════════════ */
+    .seo-card { padding: 36px 40px; }
+    .seo-content { max-width: 860px; }
+    .seo-h1 { font-family: 'Syne', sans-serif; font-size: clamp(20px, 3vw, 28px); font-weight: 900; color: #f1f5ff; line-height: 1.22; margin-bottom: 24px; letter-spacing: -.025em; }
+    .seo-h2 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: #f1f5ff; margin: 32px 0 12px; letter-spacing: -.01em; }
+    .seo-h3 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: #f1f5ff; margin-bottom: 8px; }
+    .seo-content p { font-size: 14px; color: #94a3b8; line-height: 1.78; margin-bottom: 14px; }
+    .seo-content strong { color: #f1f5ff; }
+    .seo-content code { font-family: 'IBM Plex Mono', monospace; font-size: 12px; background: rgba(56,189,248,.08); padding: 2px 6px; border-radius: 4px; color: #38bdf8; }
+    .seo-quicksummary { background: rgba(56,189,248,.06); border: 1px solid rgba(56,189,248,.18); border-left: 3px solid #38bdf8; border-radius: 10px; padding: 16px 20px; font-size: 14px; color: #f1f5ff; line-height: 1.68; margin-bottom: 28px; }
+    .seo-formula { font-family: 'IBM Plex Mono', monospace; font-size: 13px; background: rgba(6,11,24,.8); border: 1px solid rgba(255,255,255,.1); padding: 12px 18px; border-radius: 8px; color: #38bdf8; margin: 12px 0; border-left: 3px solid #38bdf8; }
+    .seo-protip  { background: rgba(34,197,94,.05); border: 1px solid rgba(34,197,94,.2); border-left: 3px solid #22c55e; border-radius: 10px; padding: 14px 18px; font-size: 14px; color: #94a3b8; line-height: 1.68; margin: 16px 0; }
+    .seo-mistake { background: rgba(234,179,8,.05); border: 1px solid rgba(234,179,8,.2); border-left: 3px solid #eab308; border-radius: 10px; padding: 14px 18px; font-size: 14px; color: #94a3b8; line-height: 1.68; margin: 16px 0; }
+    .seo-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin: 12px 0 16px; padding: 0; }
+    .seo-list li { font-size: 14px; color: #94a3b8; padding-left: 20px; position: relative; line-height: 1.65; }
+    .seo-list li::before { content: '→'; position: absolute; left: 0; color: #38bdf8; }
+    .seo-tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin: 16px 0; }
+    .seo-tool-card { display: flex; flex-direction: column; gap: 5px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 16px 18px; text-decoration: none; transition: all .22s ease; }
+    .seo-tool-card:hover { border-color: rgba(56,189,248,.3); background: rgba(255,255,255,.07); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,.3); }
+    .seo-tool-icon { font-size: 22px; }
+    .seo-tool-name { font-size: 13px; font-weight: 600; color: #f1f5ff; }
+    .seo-tool-desc { font-size: 11px; color: #475569; }
+    .seo-references { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); border-radius: 12px; padding: 18px 22px; margin-top: 28px; }
+    .seo-references p { margin-bottom: 0; }
+
+    /* ══════════════════════════════════════════════════
+       ABOUT CARD
+    ══════════════════════════════════════════════════ */
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .about-inner { display: flex; gap: 20px; }
+    .about-avatar { width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0; background: linear-gradient(135deg, #3b82f6, #8b5cf6); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 900; color: #fff; box-shadow: 0 4px 16px rgba(59,130,246,.4); }
+    .about-name { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 900; color: #f1f5ff; margin-bottom: 4px; }
+    .about-role { font-size: 11px; color: #38bdf8; font-family: 'IBM Plex Mono', monospace; margin-bottom: 12px; }
+    .about-bio  { font-size: 13px; color: #94a3b8; line-height: 1.68; margin-bottom: 14px; }
+    .about-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .about-tag  { font-size: 10px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; padding: 3px 8px; border-radius: 4px; background: rgba(56,189,248,.08); color: #38bdf8; border: 1px solid rgba(56,189,248,.2); }
+    .about-social-proof { display: flex; flex-wrap: wrap; gap: 8px; }
+    .proof-badge { font-size: 11px; color: #22c55e; font-family: 'IBM Plex Mono', monospace; background: rgba(34,197,94,.08); padding: 3px 9px; border-radius: 4px; border: 1px solid rgba(34,197,94,.2); }
+    .about-cta { background: linear-gradient(135deg, rgba(37,99,235,.12), rgba(124,58,237,.12)); border: 1px solid rgba(56,189,248,.22) !important; display: flex; flex-direction: column; gap: 14px; }
+    .cta-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 900; color: #f1f5ff; }
+    .cta-desc  { font-size: 13px; color: #94a3b8; line-height: 1.65; }
+    .cta-buttons { display: flex; flex-wrap: wrap; gap: 10px; }
+    .cta-btn { font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif; padding: 9px 16px; border-radius: 10px; cursor: pointer; transition: all .22s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid transparent; }
+    .cta-btn--primary  { background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: #fff; box-shadow: 0 4px 16px rgba(59,130,246,.35); }
+    .cta-btn--primary:hover  { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(59,130,246,.5); }
+    .cta-btn--secondary { background: rgba(34,197,94,.1); color: #22c55e; border-color: rgba(34,197,94,.3); }
+    .cta-btn--secondary:hover { background: rgba(34,197,94,.18); }
+    .cta-btn--ghost { background: rgba(255,255,255,.06); color: #94a3b8; border-color: rgba(255,255,255,.12); }
+    .cta-btn--ghost:hover { color: #f1f5ff; border-color: rgba(255,255,255,.22); }
+    .share-banner { background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.22); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #22c55e; animation: pop-in .3s cubic-bezier(.34,1.56,.64,1); }
+    .viral-banner { background: rgba(56,189,248,.06); border: 1px solid rgba(56,189,248,.14); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #475569; text-align: center; }
+
+    /* ══════════════════════════════════════════════════
+       INFO BUTTON & TOOLTIP
+    ══════════════════════════════════════════════════ */
+    .info-btn { display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; background: rgba(56,189,248,.1); color: #38bdf8; border: 1px solid rgba(56,189,248,.25); border-radius: 50%; font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 700; font-style: italic; cursor: help; flex-shrink: 0; line-height: 1; transition: all .18s; vertical-align: middle; user-select: none; }
+    .info-btn:hover { background: #38bdf8; color: #000; box-shadow: 0 0 10px rgba(56,189,248,.5); }
+    .info-btn--sm { width: 13px; height: 13px; font-size: 8px; }
+    .g-tooltip { position: fixed; z-index: 9999; max-width: 280px; background: rgba(10,15,30,.97); color: #cbd5e1; font-family: 'Inter', sans-serif; font-size: 11px; line-height: 1.55; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(56,189,248,.22); box-shadow: 0 12px 40px rgba(0,0,0,.7); backdrop-filter: blur(16px); pointer-events: none; opacity: 0; transform: translateY(5px); transition: opacity .14s ease, transform .14s ease; white-space: normal; }
+    .g-tooltip.tt-show { opacity: 1; transform: translateY(0); }
+
+    /* ══════════════════════════════════════════════════
+       COPILOT
+    ══════════════════════════════════════════════════ */
+    #copilotToggle { position: fixed; right: 20px; bottom: 20px; z-index: 1200; border: 1px solid rgba(56,189,248,.3); background: linear-gradient(135deg, rgba(37,99,235,.92), rgba(124,58,237,.92)); color: #fff; font-family: 'Inter', sans-serif; font-weight: 600; border-radius: 100px; padding: 10px 18px; cursor: pointer; backdrop-filter: blur(16px); box-shadow: 0 4px 20px rgba(59,130,246,.42); transition: all .22s ease; display: flex; align-items: center; gap: 6px; font-size: 13px; }
+    #copilotToggle:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(59,130,246,.58); }
+    .copilot-panel { position: fixed; right: 20px; bottom: 68px; width: min(380px, calc(100vw - 40px)); height: 490px; display: none; flex-direction: column; z-index: 1199; border: 1px solid rgba(56,189,248,.22); border-radius: 20px; background: rgba(10,15,30,.93); backdrop-filter: blur(24px) saturate(1.5); box-shadow: 0 20px 60px rgba(0,0,0,.6), 0 0 40px rgba(59,130,246,.1); overflow: hidden; }
+    .copilot-panel.open { display: flex; animation: rise .25s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes rise { from{opacity:0;transform:translateY(16px) scale(.97)} to{opacity:1;transform:none} }
+    .copilot-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,.08); padding: 14px 18px; background: rgba(37,99,235,.1); }
+    .copilot-header h3 { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; margin: 0; color: #f1f5ff; display: flex; align-items: center; gap: 8px; }
+    .copilot-header h3::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #22c55e; animation: pulse-live 1.8s ease-in-out infinite; box-shadow: 0 0 6px #22c55e; }
+    #copilotCollapse { border: 1px solid rgba(255,255,255,.1); color: #94a3b8; background: rgba(255,255,255,.06); font-size: 14px; cursor: pointer; border-radius: 6px; padding: 2px 8px; transition: all .18s; }
+    #copilotCollapse:hover { color: #f1f5ff; background: rgba(255,255,255,.12); }
+    .copilot-messages { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 8px; scrollbar-width: thin; scrollbar-color: rgba(56,189,248,.2) transparent; }
+    .copilot-messages::-webkit-scrollbar { width: 3px; }
+    .copilot-messages::-webkit-scrollbar-thumb { background: rgba(56,189,248,.25); border-radius: 2px; }
+    .copilot-msg { max-width: 92%; font-size: 12px; line-height: 1.58; padding: 9px 13px; border-radius: 11px; white-space: pre-wrap; animation: msg-in .2s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes msg-in { from{opacity:0;transform:translateY(5px) scale(.97)} to{opacity:1;transform:none} }
+    .copilot-msg--user { align-self: flex-end; background: linear-gradient(135deg, rgba(37,99,235,.35), rgba(124,58,237,.35)); border: 1px solid rgba(129,140,248,.3); color: #f1f5ff; }
+    .copilot-msg--ai   { align-self: flex-start; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); color: #94a3b8; }
+    .copilot-input-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; border-top: 1px solid rgba(255,255,255,.08); padding: 12px; background: rgba(255,255,255,.02); }
+    #copilotInput { min-width: 0; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.07); color: #f1f5ff; border-radius: 8px; padding: 8px 12px; font-size: 12px; font-family: 'Inter', sans-serif; transition: all .18s; }
+    #copilotInput:focus { outline: none; border-color: rgba(56,189,248,.45); box-shadow: 0 0 0 3px rgba(56,189,248,.08); }
+    #copilotInput::placeholder { color: #374151; }
+    #copilotSend { border: 1px solid rgba(56,189,248,.3); border-radius: 8px; background: linear-gradient(135deg, rgba(37,99,235,.6), rgba(124,58,237,.6)); color: #fff; padding: 8px 13px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all .18s; }
+    #copilotSend:hover { background: linear-gradient(135deg, rgba(37,99,235,.9), rgba(124,58,237,.9)); }
+    #copilotSend:disabled { opacity: .5; cursor: not-allowed; }
+    .copilot-typing { display: flex; gap: 3px; align-items: center; padding: 4px 2px; }
+    .copilot-typing span { width: 5px; height: 5px; border-radius: 50%; background: #38bdf8; opacity: .7; animation: bounce-t .9s ease-in-out infinite; }
+    .copilot-typing span:nth-child(2) { animation-delay: .15s; }
+    .copilot-typing span:nth-child(3) { animation-delay: .3s; }
+    @keyframes bounce-t { 0%,80%,100%{transform:translateY(0);opacity:.4} 40%{transform:translateY(-5px);opacity:1} }
+
+    /* ══════════════════════════════════════════════════
+       TOAST
+    ══════════════════════════════════════════════════ */
+    .toast { position: fixed; bottom: 88px; right: 20px; z-index: 2000; background: rgba(15,23,42,.97); backdrop-filter: blur(16px); color: #f1f5ff; border: 1px solid rgba(255,255,255,.18); padding: 11px 18px; border-radius: 10px; font-size: 13px; font-family: 'Inter', sans-serif; box-shadow: 0 8px 32px rgba(0,0,0,.6); opacity: 0; transform: translateY(10px); transition: opacity .25s ease, transform .25s ease; pointer-events: none; }
+    .toast--on { opacity: 1; transform: translateY(0); }
+
+    /* ══════════════════════════════════════════════════
+       SECTION DIVIDERS / LABELS
+    ══════════════════════════════════════════════════ */
+    .section-label {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 700;
+      color: #475569; text-transform: uppercase; letter-spacing: .1em;
+      margin-bottom: 0;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,.07); }
+    .section-label-icon { color: #38bdf8; }
+
+    /* ══════════════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════════════ */
+    @media (max-width: 1100px) {
+      .charts-grid { grid-template-columns: 1fr 1fr; }
+      .chart-inner-wide { grid-column: span 2; }
+      .auto-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 900px) {
+      .nav-toggle { display: flex; }
+      .nav-links  { display: none; position: absolute; top: 60px; left: 0; right: 0; z-index: 300; flex-direction: column; background: rgba(10,15,30,.97); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,.08); padding: 8px; }
+      .nav-links.open { display: flex; }
+      .insights-grid { grid-template-columns: 1fr 1fr; }
+      .simulator-body { grid-template-columns: 1fr; }
+      .about-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .app-container { padding: 16px 16px 40px; gap: 14px; }
+      .header-card { padding: 32px 20px 28px; }
+      .charts-grid { grid-template-columns: 1fr; }
+      .chart-inner-wide { grid-column: span 1; }
+      .insights-grid { grid-template-columns: 1fr; }
+      .decision-grid { grid-template-columns: 1fr; }
+      .risk-meter-card { flex-direction: column; }
+      .sim-results { grid-template-columns: 1fr; }
+      .about-inner { flex-direction: column; }
+      .metrics-summary-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+      .auto-grid { grid-template-columns: 1fr; }
+      .seo-card { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient background -->
+  <div class="ambient" aria-hidden="true">
+    <div class="ambient__orb ambient__orb--1"></div>
+    <div class="ambient__orb ambient__orb--2"></div>
+    <div class="ambient__orb ambient__orb--3"></div>
+    <div class="ambient__grid"></div>
+  </div>
+
+  <!-- Global tooltip -->
+  <div id="globalTooltip" class="g-tooltip" role="tooltip" aria-live="polite"></div>
+
+  <!-- Suite nav -->
+  <nav class="suite-nav">
+    <a href="https://wfm-intelligence-engine.vercel.app">Intelligence Engine</a>
+    <a href="https://wfm-intraday-reforecast.vercel.app">Intraday Reforecast</a>
+    <a href="https://intraday-variance-analysis.vercel.app">Variance Analysis</a>
+    <a href="https://wfm-allocation-simulator.vercel.app">Allocation Simulator</a>
+  </nav>
+
+  <!-- Top nav -->
+  <header class="nav-header" role="banner">
+    <div class="nav-inner">
+      <div class="nav-brand">
+        <div class="brand-logo">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <rect x="1" y="1" width="11" height="11" rx="3" fill="url(#lgnav)"/>
+            <rect x="16" y="1" width="11" height="11" rx="3" fill="url(#lgnav)" opacity="0.35"/>
+            <rect x="1" y="16" width="11" height="11" rx="3" fill="url(#lgnav)" opacity="0.35"/>
+            <rect x="16" y="16" width="11" height="11" rx="3" fill="url(#lgnav)"/>
+            <defs><linearGradient id="lgnav" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#818cf8"/></linearGradient></defs>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">Workforce Intelligence Suite</span>
+          <span class="brand-sub">Intraday Command Center · Abdul Basit</span>
+        </div>
+      </div>
+      <nav class="nav-links" role="navigation" aria-label="Suite navigation">
+        <a href="https://abdulbasiteverise.github.io/abire-forecast-validator/" class="nav-link" target="_blank">ABIRE Validator</a>
+        <a href="https://abdulbasiteverise.github.io/wfm-intelligence-engine/" class="nav-link" target="_blank">WFM Intelligence Engine</a>
+        <a href="https://abdulbasiteverise.github.io/Intraday-Variance-analysis/" class="nav-link" target="_blank">Variance Analyzer</a>
+        <a href="https://abdulbasiteverise.github.io/Intraday-Pattern-Deviation/" class="nav-link nav-link--active">Pattern Deviation</a>
+        <a href="https://abdulbasiteverise.github.io/bwie-wfm-simulator/" class="nav-link" target="_blank">WFM Simulator</a>
+      </nav>
+      <button class="nav-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main role="main">
+  <div class="app-container">
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 1 — HEADER CARD
+    ═══════════════════════════════════════════════ -->
+    <div class="card header-card">
+      <div class="header-live-badge">
+        <span class="header-live-dot"></span>
+        LIVE · WFM Analytics · Intraday Intelligence v4
+        <span class="header-new-tag">NEW: Reforecast Engine + Variability Index</span>
+      </div>
+      <h1>Intraday <span class="accent">Command Center</span></h1>
+      <p>Real-Time WFM Intelligence by Abdul Basit — Enterprise-grade intraday forecasting with spike severity classification, reforecast engine, 6-pattern traffic detection, and live operational intelligence.</p>
+      <div class="header-actions">
+        <button class="btn btn--primary" id="loadExampleBtn">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M3.5 5.5 7 9l3.5-3.5M1 12.5h12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Load Example
+        </button>
+        <button class="btn btn--ghost" id="clearDataBtn">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2 2 12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          Clear All
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 2 — KPI METRICS GRID CARD
+    ═══════════════════════════════════════════════ -->
+    <div class="card metrics-card" aria-label="Key performance indicators">
+      <div class="card-title"><span class="card-title-icon">◎</span> Live KPI Dashboard</div>
+      <div class="grid">
+
+        <div class="kpi">
+          <div class="kpi-value" id="trafficPattern">—</div>
+          <div class="kpi-label">Traffic Pattern <button class="info-btn" data-tip="Auto-classifies pattern: Normal · Front-Loaded · Delayed Peak · Midday Spike · Evening Surge · Double Peak — based on period deviation analysis.">i</button></div>
+        </div>
+
+        <div class="kpi">
+          <div class="kpi-value" id="siCumActual">—</div>
+          <div class="kpi-label">Cumulative Today <button class="info-btn" data-tip="Total actual calls received up to the most recently entered interval.">i</button></div>
+        </div>
+
+        <div class="kpi">
+          <div class="kpi-value" id="siCumExpected">—</div>
+          <div class="kpi-label">Expected by Now <button class="info-btn" data-tip="Calls expected by this point based on cumulative historical completion %.">i</button></div>
+        </div>
+
+        <div class="kpi">
+          <div class="kpi-value" id="siVariancePct">—</div>
+          <div class="kpi-label">Variance % <button class="info-btn" data-tip="Actual vs expected cumulative. Green ±5% · Yellow 5–10% · Red >10%.">i</button></div>
+        </div>
+
+        <div class="kpi">
+          <div class="kpi-value" id="siHistProj">—</div>
+          <div class="kpi-label">Hist. Projection <button class="info-btn" data-tip="Daily forecast × arrival pattern %. Requires daily forecast to be set.">i</button></div>
+        </div>
+
+        <div class="kpi">
+          <div class="kpi-value" id="siRunRate">—</div>
+          <div class="kpi-label">Run-Rate Proj. <button class="info-btn" data-tip="cumActual + (avg pace × remaining intervals). Reflects today's actual velocity.">i</button></div>
+        </div>
+
+        <div class="kpi kpi--highlight">
+          <div class="kpi-value kpi-value--accent" id="siReforecast">—</div>
+          <div class="kpi-label">Reforecast EOD <button class="info-btn" data-tip="cumActual + DailyForecast × (1 − HistCompletion%). Most accurate live EOD estimate using actual progress + remaining pattern.">i</button></div>
+        </div>
+
+        <div class="kpi">
+          <div class="kpi-value" id="siBlended">—</div>
+          <div class="kpi-label">Blended Forecast <button class="info-btn" data-tip="Dynamic weighted blend: Early 70/30 · Mid 50/50 · Late 30/70 (hist/run-rate).">i</button></div>
+        </div>
+
+        <div class="kpi">
+          <div class="kpi-value" id="siConfidence">—</div>
+          <div class="kpi-label">Confidence <button class="info-btn" data-tip="High = low deviation + good coverage. Medium = moderate drift. Low = high deviation or early day.">i</button></div>
+        </div>
+
+        <div class="kpi">
+          <div class="kpi-value" id="siBacklog">—</div>
+          <div class="kpi-label">Backlog Risk <button class="info-btn" data-tip="Remaining projected calls vs staffing capacity. Safe / Risk / Critical.">i</button></div>
+        </div>
+
+        <div class="kpi">
+          <div class="kpi-value" id="siFcstAccuracy">—</div>
+          <div class="kpi-label">Forecast Accuracy <button class="info-btn" data-tip="100% − MAPE. Excellent ≥95% · Good 90–95% · Acceptable 85–90%.">i</button></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SUMMARY METRIC CARDS
+    ═══════════════════════════════════════════════ -->
+    <div class="card" style="padding:24px;" aria-label="Summary metric cards">
+      <div class="card-title"><span class="card-title-icon">⬡</span> Metric Summary</div>
+      <div class="metrics-summary-grid">
+
+        <div class="metric-card" id="card-status">
+          <div class="mc-glow"></div>
+          <div class="mc-header"><div class="mc-label">Pattern Status</div><button class="info-btn" data-tip="NORMAL = ±5% avg deviation · DRIFTING = 5–10% · MAJOR DEVIATION = >10%.">i</button></div>
+          <div class="mc-value" id="statusValue">—</div>
+          <div class="mc-tag" id="statusTag">Awaiting data</div>
+        </div>
+
+        <div class="metric-card" id="card-cumulative">
+          <div class="mc-glow"></div>
+          <div class="mc-header"><div class="mc-label">Avg Deviation</div><button class="info-btn" data-tip="Average deviation across all intervals with actual data.">i</button></div>
+          <div class="mc-value" id="cumulativeValue">—</div>
+          <div class="mc-tag">vs. Historical Average</div>
+        </div>
+
+        <div class="metric-card" id="card-reforecast">
+          <div class="mc-glow"></div>
+          <div class="mc-header"><div class="mc-label">Reforecast EOD</div><button class="info-btn" data-tip="Intraday Reforecast: CumActual + DailyForecast × (1 − HistCompletion%). Blends actual progress with remaining historical pattern.">i</button></div>
+          <div class="mc-value" id="reforecastValue">—</div>
+          <div class="mc-tag" id="reforecastTag">Requires daily forecast &amp; actuals</div>
+        </div>
+
+        <div class="metric-card" id="card-blended">
+          <div class="mc-glow"></div>
+          <div class="mc-header"><div class="mc-label">Blended EOD Forecast</div><button class="info-btn" data-tip="Dynamic weighted blend. Early: 70/30 · Mid: 50/50 · Late: 30/70 (hist/run-rate).">i</button></div>
+          <div class="mc-value" id="blendedValue">—</div>
+          <div class="mc-tag" id="blendedTag">End of Day Estimate</div>
+        </div>
+
+        <div class="metric-card" id="card-spike">
+          <div class="mc-glow"></div>
+          <div class="mc-header"><div class="mc-label">Spike Detection</div><button class="info-btn" data-tip="Severity levels: ⚠ Mild >5% dev + accel · 🔥 Major >10% + accel · 🚨 Critical >15% + accel.">i</button></div>
+          <div class="mc-value" id="spikeStatus">Clear</div>
+          <div class="mc-tag" id="spikeDetail">No spike detected</div>
+        </div>
+
+        <div class="metric-card" id="card-variability">
+          <div class="mc-glow"></div>
+          <div class="mc-header"><div class="mc-label">Forecast Reliability</div><button class="info-btn" data-tip="Historical Variability Index: StdDev / HistAvg across 5 weeks. Stable <10% · Moderate 10–20% · High >20%.">i</button></div>
+          <div class="mc-value" id="variabilityValue">—</div>
+          <div class="mc-tag" id="variabilityTag">Needs 2+ weeks of data</div>
+        </div>
+
+        <div class="metric-card" id="card-accuracy">
+          <div class="mc-glow"></div>
+          <div class="mc-header"><div class="mc-label">Forecast Accuracy</div><button class="info-btn" data-tip="100% − |Actual − Forecast| / Actual × 100. Excellent ≥95% · Good 90–95% · Acceptable 85–90%.">i</button></div>
+          <div class="mc-value" id="accuracyValue">—</div>
+          <div class="mc-tag" id="accuracyTag">Needs day-end data</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SECTION 3 — INPUT CARD
+    ═══════════════════════════════════════════════ -->
+    <div class="card input-card">
+      <div class="card-title"><span class="card-title-icon">⬇</span> Data Input</div>
+
+      <!-- Data Source Toggle -->
+      <div class="datasource-bar" aria-labelledby="datasource-heading">
+        <div class="datasource-label">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1.2" fill="currentColor" opacity=".7"/><rect x="8" y="1" width="5" height="5" rx="1.2" fill="currentColor"/><rect x="1" y="8" width="5" height="5" rx="1.2" fill="currentColor"/><rect x="8" y="8" width="5" height="5" rx="1.2" fill="currentColor" opacity=".7"/></svg>
+          Data Source
+        </div>
+        <div class="datasource-toggle">
+          <label class="mode-option">
+            <input type="radio" name="dataMode" value="manual" checked />
+            <span class="mode-btn mode-btn--manual">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h3v3H2zM7 2h3v3H7zM2 7h3v3H2zM7 7h3v3H7z" fill="currentColor" opacity=".7"/></svg>
+              Manual Entry
+            </span>
+          </label>
+          <label class="mode-option">
+            <input type="radio" name="dataMode" value="auto" />
+            <span class="mode-btn mode-btn--auto">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="currentColor" stroke-width="1.4"/><path d="M6 3v3l2 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              Auto Data Feed
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Manual Section -->
+      <div id="manualSection">
+        <div class="paste-section-header">
+          <h2><span style="color:#38bdf8">⬇</span> Bulk Data Entry</h2>
+          <p>Paste each column vertically (one value per line) then click Apply — or click any table cell and use <kbd>Ctrl+V</kbd> for Excel multi-column paste.</p>
+        </div>
+        <div class="week-controls">
+          <button class="btn btn--ghost btn--sm" id="addWeek">+ Add Week</button>
+          <button class="btn btn--ghost btn--sm" id="removeWeek">- Remove Week</button>
+        </div>
+        <div class="paste-grid" id="pasteGrid">
+          <div class="paste-col">
+            <div class="paste-col-label"><span class="week-badge week-badge--hist">Wk −1</span></div>
+            <textarea class="paste-ta" id="pasteW1" placeholder="19&#10;24&#10;30&#10;38&#10;55..." rows="5"></textarea>
+            <button class="btn btn--apply" data-col="0">Apply</button>
+          </div>
+          <div class="paste-col">
+            <div class="paste-col-label"><span class="week-badge week-badge--hist">Wk −2</span></div>
+            <textarea class="paste-ta" id="pasteW2" placeholder="18&#10;23&#10;29&#10;36&#10;52..." rows="5"></textarea>
+            <button class="btn btn--apply" data-col="1">Apply</button>
+          </div>
+          <div class="paste-col">
+            <div class="paste-col-label"><span class="week-badge week-badge--hist">Wk −3</span></div>
+            <textarea class="paste-ta" id="pasteW3" placeholder="19&#10;23&#10;29&#10;30&#10;50..." rows="5"></textarea>
+            <button class="btn btn--apply" data-col="2">Apply</button>
+          </div>
+          <div class="paste-col">
+            <div class="paste-col-label"><span class="week-badge week-badge--hist">Wk −4</span></div>
+            <textarea class="paste-ta" id="pasteW4" placeholder="17&#10;26&#10;30&#10;35&#10;53..." rows="5"></textarea>
+            <button class="btn btn--apply" data-col="3">Apply</button>
+          </div>
+          <div class="paste-col">
+            <div class="paste-col-label"><span class="week-badge week-badge--hist">Wk −5</span></div>
+            <textarea class="paste-ta" id="pasteW5" placeholder="18&#10;23&#10;29&#10;37&#10;51..." rows="5"></textarea>
+            <button class="btn btn--apply" data-col="4">Apply</button>
+          </div>
+          <div class="paste-col paste-col--today">
+            <div class="paste-col-label"><span class="week-badge week-badge--today">Today Actual</span></div>
+            <textarea class="paste-ta paste-ta--today" id="pasteToday" placeholder="20&#10;25&#10;28&#10;35&#10;50..." rows="5"></textarea>
+            <button class="btn btn--apply btn--apply-today" data-col="today">Apply</button>
+          </div>
+        </div>
+        <div class="config-row">
+          <div class="config-card">
+            <label class="config-label" for="dailyForecastInput">
+              <span class="config-label-icon">◈</span> Daily Forecast Volume
+              <button class="info-btn" data-tip="Total planned daily call volume. Required for Hist. Projection, Reforecast, and Blended models.">i</button>
+            </label>
+            <input type="number" id="dailyForecastInput" class="config-input" placeholder="e.g. 2500" min="0" step="1" />
+            <span class="config-hint">Required for Reforecast + Historical Projection</span>
+          </div>
+          <div class="config-card">
+            <label class="config-label" for="availableCapacityInput">
+              <span class="config-label-icon">◈</span> Available Capacity
+              <button class="info-btn" data-tip="Total call handling capacity for the day. Used for Backlog Risk calculation.">i</button>
+            </label>
+            <input type="number" id="availableCapacityInput" class="config-input" placeholder="e.g. 2400" min="0" step="1" />
+            <span class="config-hint">Required for Backlog Risk calculation</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auto Section -->
+      <div id="autoSection" style="display:none">
+        <div class="paste-section-header">
+          <h2><span style="color:#f97316">⚡</span> Auto Data Feed</h2>
+          <p>Connect to your WFM platform or upload a CSV file to populate interval data automatically.</p>
+        </div>
+        <div class="auto-grid">
+          <div class="auto-card auto-card--active">
+            <div class="auto-card-header">
+              <span class="auto-card-icon">📂</span>
+              <div>
+                <div class="auto-card-title">CSV Upload</div>
+                <div class="auto-card-status auto-card-status--ready">Ready</div>
+              </div>
+            </div>
+            <p class="auto-card-desc">Upload a CSV file with columns: <code>interval, wk1, wk2, wk3, wk4, wk5, today</code></p>
+            <label class="csv-upload-label" for="csvUpload">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3v10M6 7l4-4 4 4M3 15h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Choose CSV file or drag &amp; drop</span>
+              <input type="file" id="csvUpload" accept=".csv,.txt" class="csv-input" />
+            </label>
+            <div class="config-row" style="margin-top:14px">
+              <div class="config-card">
+                <label class="config-label" for="dailyForecastInputAuto"><span class="config-label-icon">◈</span> Daily Forecast Volume</label>
+                <input type="number" id="dailyForecastInputAuto" class="config-input" placeholder="e.g. 2500" min="0" step="1" />
+              </div>
+              <div class="config-card">
+                <label class="config-label" for="availableCapacityInputAuto"><span class="config-label-icon">◈</span> Available Capacity</label>
+                <input type="number" id="availableCapacityInputAuto" class="config-input" placeholder="e.g. 2400" min="0" step="1" />
+              </div>
+            </div>
+          </div>
+          <div class="auto-card auto-card--future">
+            <div class="auto-card-header"><span class="auto-card-icon">🔗</span><div><div class="auto-card-title">Genesys Cloud API</div><div class="auto-card-status auto-card-status--soon">Coming Soon</div></div></div>
+            <p class="auto-card-desc">Pull real-time interval data directly from Genesys Cloud via REST API integration.</p>
+            <button class="btn btn--ghost btn--sm" disabled>Configure Integration</button>
+          </div>
+          <div class="auto-card auto-card--future">
+            <div class="auto-card-header"><span class="auto-card-icon">🔗</span><div><div class="auto-card-title">NICE CXone API</div><div class="auto-card-status auto-card-status--soon">Coming Soon</div></div></div>
+            <p class="auto-card-desc">Stream intraday interval arrivals from NICE CXone via scheduled API pull.</p>
+            <button class="btn btn--ghost btn--sm" disabled>Configure Integration</button>
+          </div>
+          <div class="auto-card auto-card--future">
+            <div class="auto-card-header"><span class="auto-card-icon">🔗</span><div><div class="auto-card-title">Verint Data Export</div><div class="auto-card-status auto-card-status--soon">Coming Soon</div></div></div>
+            <p class="auto-card-desc">Import scheduled Verint interval reports via SFTP or export file monitoring.</p>
+            <button class="btn btn--ghost btn--sm" disabled>Configure Integration</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end input-card -->
+
+    <!-- ═══════════════════════════════════════════════
+         INTERVAL FORECASTING TABLE CARD
+    ═══════════════════════════════════════════════ -->
+    <div class="card table-card" aria-labelledby="table-heading">
+      <div class="table-card-header">
+        <div>
+          <div class="card-title" style="margin-bottom:4px"><span class="card-title-icon">⊞</span> Interval Forecasting Table</div>
+          <p style="font-size:12px;color:#475569">61 intervals · 8:00–23:00 · Includes Reforecast EOD column · <kbd style="background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:11px">Ctrl+V</kbd> for Excel paste</p>
+        </div>
+        <div class="legend-row">
+          <span class="legend-chip legend-chip--green">±0–5% Normal</span>
+          <span class="legend-chip legend-chip--yellow">5–10% Drift</span>
+          <span class="legend-chip legend-chip--red">&gt;10% Major</span>
+        </div>
+      </div>
+      <div class="table-scroller" id="tableWrapper">
+        <table class="data-table" id="dataTable" role="grid">
+          <thead>
+            <tr class="th-group-row" id="tableGroupHeaderRow">
+              <th class="th-sticky-label" rowspan="2">Interval</th>
+              <th colspan="5" class="th-group th-group--hist">Historical Weeks</th>
+              <th colspan="2" class="th-group th-group--calc">Calculated</th>
+              <th colspan="3" class="th-group th-group--today">Today</th>
+              <th colspan="5" class="th-group th-group--models">Forecast Models</th>
+              <th colspan="2" class="th-group th-group--ops">Operations</th>
+            </tr>
+            <tr class="th-sub-row" id="tableSubHeaderRow">
+              <th class="th-sub th-week" data-tip="Call volume one week ago.">Wk −1</th>
+              <th class="th-sub th-week" data-tip="Call volume two weeks ago.">Wk −2</th>
+              <th class="th-sub th-week" data-tip="Call volume three weeks ago.">Wk −3</th>
+              <th class="th-sub th-week" data-tip="Call volume four weeks ago.">Wk −4</th>
+              <th class="th-sub th-week" data-tip="Call volume five weeks ago.">Wk −5</th>
+              <th class="th-sub th-hist" data-tip="Average across 5 historical weeks. Baseline for all calculations.">Hist. Avg</th>
+              <th class="th-sub th-arrival" data-tip="% of total daily calls typically arriving in this interval.">Arrival %</th>
+              <th class="th-sub th-today" data-tip="Actual calls received today in this interval.">Actual</th>
+              <th class="th-sub th-dev" data-tip="Today vs historical average. Green ±5% · Yellow 5–10% · Red >10%.">Dev %</th>
+              <th class="th-sub th-cmpl" data-tip="Cumulative % of total daily traffic expected by this point.">Cmpl %</th>
+              <th class="th-sub th-histp" data-tip="Daily forecast × arrival %. Interval-level distribution of your forecast.">Hist. Proj</th>
+              <th class="th-sub th-rr" data-tip="EOD estimate: cumActual + (avg pace × remaining intervals).">Run-Rate</th>
+              <th class="th-sub th-rfcast" data-tip="Reforecast EOD = CumActual + DailyForecast × (1 − HistCompletion). Blends actual progress with remaining pattern.">Reforecast</th>
+              <th class="th-sub th-blend" data-tip="Dynamic weighted blend. Early: 70/30 · Mid: 50/50 · Late: 30/70 (hist/run-rate).">Blended</th>
+              <th class="th-sub th-conf" data-tip="Forecast confidence: High / Medium / Low.">Confidence</th>
+              <th class="th-sub th-rem" data-tip="Estimated remaining calls: blended EOD minus cumulative actuals.">Remaining</th>
+              <th class="th-sub th-bl" data-tip="Remaining projected calls vs remaining capacity. Safe / Risk / Critical.">Backlog</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         CHARTS CARD
+    ═══════════════════════════════════════════════ -->
+    <div class="card charts-card" aria-labelledby="charts-heading">
+      <div class="card-title"><span class="card-title-icon">◎</span> Data Visualisation</div>
+      <p style="font-size:12px;color:#475569;margin-bottom:18px">Live charts — Reforecast line added · hover points for details</p>
+      <div class="charts-grid">
+        <div class="chart-inner chart-inner-wide">
+          <div class="chart-card-title">
+            Forecast vs Actual — Hist Avg · Run-Rate · Reforecast · Blended
+            <button class="info-btn info-btn--sm" data-tip="Five lines: actual (violet), historical avg (dashed sky), run-rate (dotted amber), reforecast (orange), blended (emerald solid).">i</button>
+          </div>
+          <div class="chart-wrap"><canvas id="forecastChart"></canvas></div>
+        </div>
+        <div class="chart-inner">
+          <div class="chart-card-title">Arrival Pattern Distribution (%) <button class="info-btn info-btn--sm" data-tip="Historical % distribution of calls across the day.">i</button></div>
+          <div class="chart-wrap"><canvas id="arrivalChart"></canvas></div>
+        </div>
+        <div class="chart-inner">
+          <div class="chart-card-title">Interval Deviation (%) <button class="info-btn info-btn--sm" data-tip="How much each interval's actuals differ from historical average.">i</button></div>
+          <div class="chart-wrap"><canvas id="deviationChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         INTELLIGENCE PANELS CARD
+    ═══════════════════════════════════════════════ -->
+    <div class="card intelligence-card" aria-labelledby="insights-heading">
+      <div class="card-title"><span class="card-title-icon">⬡</span> Pattern Intelligence</div>
+      <div class="insights-grid">
+        <div class="panel panel--ops">
+          <div class="panel-hdr"><span class="panel-hdr-accent"></span><span class="panel-icon">💡</span><span class="panel-title">Operational Insights</span><button class="info-btn info-btn--sm" data-tip="Auto-generated alerts: spike severity, variability warnings, reforecast divergence, pattern classification, backlog risk.">i</button></div>
+          <div class="panel-body" id="operationalInsight"><p class="ph">Load data to generate operational insights.</p></div>
+        </div>
+        <div class="panel panel--narrative">
+          <div class="panel-hdr"><span class="panel-hdr-accent"></span><span class="panel-icon">📋</span><span class="panel-title">Executive Narrative</span><button class="info-btn info-btn--sm" data-tip="Period-by-period analysis, trend interpretation, and recommended action.">i</button></div>
+          <div class="panel-body" id="executiveNarrative"><p class="ph">Load data or enter values to generate the executive summary.</p></div>
+        </div>
+        <div class="panel panel--periods">
+          <div class="panel-hdr"><span class="panel-hdr-accent"></span><span class="panel-icon">📊</span><span class="panel-title">Period Breakdown</span><button class="info-btn info-btn--sm" data-tip="Average deviation by period: Morning, Midday, Afternoon, Evening.">i</button></div>
+          <div class="panel-body" id="periodBreakdown"><p class="ph">Period analysis will appear here.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         DECISION ENGINE CARD
+    ═══════════════════════════════════════════════ -->
+    <div class="card decision-card-wrap" aria-labelledby="decision-heading">
+      <div class="card-title"><span class="card-title-icon">⚡</span> Recommended Actions</div>
+      <p style="font-size:12px;color:#475569;margin-bottom:18px">Multi-condition decision engine — auto-triggered by live variance signals</p>
+      <div id="decisionEngine" class="decision-grid">
+        <div class="decision-empty"><span class="decision-empty-icon">🎯</span><p>Enter intraday data to unlock recommended actions</p></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         RISK METER CARD
+    ═══════════════════════════════════════════════ -->
+    <div class="card risk-card" aria-labelledby="risk-heading">
+      <div class="card-title"><span class="card-title-icon">◉</span> Operational Risk Meter</div>
+      <p style="font-size:12px;color:#475569;margin-bottom:20px">Live composite risk score — volume · staffing · pattern combined</p>
+      <div class="risk-meter-card">
+        <div class="risk-gauge-wrap">
+          <svg id="riskGaugeSvg" viewBox="0 0 300 165" width="300" height="165">
+            <path d="M 30 145 A 120 120 0 0 1 90 42" fill="none" stroke="rgba(34,197,94,.22)" stroke-width="18" stroke-linecap="round"/>
+            <path d="M 90 42 A 120 120 0 0 1 210 42" fill="none" stroke="rgba(234,179,8,.2)" stroke-width="18" stroke-linecap="round"/>
+            <path d="M 210 42 A 120 120 0 0 1 270 145" fill="none" stroke="rgba(239,68,68,.22)" stroke-width="18" stroke-linecap="round"/>
+            <path id="riskArc" d="M 30 145 A 120 120 0 0 1 30 145" fill="none" stroke="#22c55e" stroke-width="18" stroke-linecap="round"/>
+            <line id="riskNeedle" x1="150" y1="145" x2="150" y2="32" stroke="#f1f5ff" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="150" cy="145" r="7" fill="#0f172a" stroke="#f1f5ff" stroke-width="2"/>
+            <text x="20" y="160" fill="#22c55e" font-size="9" font-family="'IBM Plex Mono',monospace" font-weight="700">LOW</text>
+            <text x="133" y="18" fill="#eab308" font-size="9" font-family="'IBM Plex Mono',monospace" font-weight="700">MED</text>
+            <text x="250" y="160" fill="#ef4444" font-size="9" font-family="'IBM Plex Mono',monospace" font-weight="700">HIGH</text>
+          </svg>
+          <div class="risk-score-display">
+            <div class="risk-score-value" id="riskScoreValue">—</div>
+            <div class="risk-score-label" id="riskScoreLabel">Awaiting data</div>
+          </div>
+        </div>
+        <div class="risk-factors" id="riskFactors"><div class="risk-factor-empty">Load data to see risk factor breakdown</div></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         WHAT-IF SIMULATOR CARD
+    ═══════════════════════════════════════════════ -->
+    <div class="card simulator-card">
+      <details class="simulator-details" id="simulatorDetails">
+        <summary class="simulator-summary">
+          <span style="color:#38bdf8;font-size:16px">◫</span>
+          <span class="sim-title">What-If Scenario Simulator</span>
+          <span class="sim-subtitle">Adjust volume, AHT &amp; FTE to model outcomes</span>
+          <span class="sim-chevron">▾</span>
+        </summary>
+        <div class="simulator-body">
+          <div class="sim-sliders">
+            <div class="sim-slider-group">
+              <label class="sim-label">Volume Adjustment <span class="sim-val" id="simVolVal">0%</span></label>
+              <input type="range" id="simVolSlider" min="-20" max="20" value="0" step="1" class="sim-range"/>
+              <div class="sim-range-marks"><span>-20%</span><span>0%</span><span>+20%</span></div>
+            </div>
+            <div class="sim-slider-group">
+              <label class="sim-label">AHT Adjustment <span class="sim-val" id="simAHTVal">0 sec</span></label>
+              <input type="range" id="simAHTSlider" min="-30" max="30" value="0" step="1" class="sim-range"/>
+              <div class="sim-range-marks"><span>-30s</span><span>0s</span><span>+30s</span></div>
+            </div>
+            <div class="sim-slider-group">
+              <label class="sim-label">FTE Adjustment <span class="sim-val" id="simFTEVal">0</span></label>
+              <input type="range" id="simFTESlider" min="-10" max="10" value="0" step="1" class="sim-range"/>
+              <div class="sim-range-marks"><span>-10</span><span>0</span><span>+10</span></div>
+            </div>
+          </div>
+          <div class="sim-results">
+            <div class="sim-result-card" id="simVolResult"><div class="sim-result-label">Adjusted Volume</div><div class="sim-result-value" id="simVolResultVal">—</div></div>
+            <div class="sim-result-card" id="simFTEResult"><div class="sim-result-label">Required FTE</div><div class="sim-result-value" id="simFTEResultVal">—</div></div>
+            <div class="sim-result-card" id="simGapResult"><div class="sim-result-label">FTE Gap</div><div class="sim-result-value" id="simGapResultVal">—</div></div>
+            <div class="sim-result-card" id="simRiskResult"><div class="sim-result-label">Scenario Risk</div><div class="sim-result-value" id="simRiskResultVal">—</div></div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         MISTAKE DETECTOR (hidden until triggered)
+    ═══════════════════════════════════════════════ -->
+    <div id="mistakeSection" style="display:none">
+      <div class="card" style="padding:20px">
+        <div id="mistakeDetector" class="mistake-box"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         EXPORT CARD
+    ═══════════════════════════════════════════════ -->
+    <div class="card export-card" aria-labelledby="export-heading">
+      <div class="export-card-header">
+        <div class="card-title" style="margin-bottom:4px"><span class="card-title-icon">↗</span> Send Executive Summary</div>
+        <p style="font-size:12px;color:#475569">Includes Reforecast, Variability Index, and Spike Severity in export</p>
+      </div>
+      <div class="export-preview" id="exportPreview"><span class="ph">Generate an analysis first to preview the summary.</span></div>
+      <div class="export-actions">
+        <button class="btn btn--export" id="outlookBtn">📧 Outlook</button>
+        <button class="btn btn--export" id="gmailBtn">✉️ Gmail</button>
+        <button class="btn btn--export" id="copyBtn">📋 Copy</button>
+        <button class="btn btn--export" id="downloadBtn">⬇ Download</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SEO CONTENT CARD
+    ═══════════════════════════════════════════════ -->
+    <div class="card seo-card">
+      <div class="seo-content">
+        <h1 class="seo-h1">Intraday Variance Analysis in Workforce Management (WFM) – Real-Time Decision Engine</h1>
+
+        <div class="seo-quicksummary">
+          <strong>Quick Summary:</strong> This tool calculates intraday volume, AHT, and staffing variance in real-time — then generates recommended actions, reforecast projections, and risk assessments. Built for WFM analysts, RTA leads, and operations managers.
+        </div>
+
+        <h2 class="seo-h2">What is Intraday Management in Call Centers?</h2>
+        <p><strong>Intraday management</strong> is the process of monitoring and adjusting real-time operations during a live workday. In a call center or contact center, things rarely go exactly as planned — call volumes spike, agents call in sick, AHT increases unexpectedly.</p>
+        <p>Intraday management means staying ahead of those changes. Instead of reacting after SLA has already dropped, a skilled WFM team reads the signals early and takes action in the moment.</p>
+        <p>Key activities include: comparing actual vs. forecast call volumes, adjusting staffing in real-time (overtime, VTO, reallocation), reforecasting end-of-day totals, and communicating risk to operations leaders.</p>
+
+        <div class="seo-protip">💡 <strong>Pro Tip:</strong> The earlier you spot a variance, the more options you have. At 30% of the day, you can still offer VTO, adjust breaks, or pull offline agents. At 80%, your options narrow significantly.</div>
+
+        <h2 class="seo-h2">What is Intraday Variance Analysis?</h2>
+        <p><strong>Intraday variance analysis</strong> is the structured comparison of actual intraday metrics against forecasted or historical benchmarks. The three main variance types are:</p>
+        <ul class="seo-list">
+          <li><strong>Volume Variance:</strong> Are more (or fewer) calls arriving than expected?</li>
+          <li><strong>AHT Variance:</strong> Are calls taking longer or shorter than the average handle time forecast?</li>
+          <li><strong>Staffing Variance:</strong> Do you have more or fewer agents available than required?</li>
+        </ul>
+        <p>Each variance type tells a different story — and combining them gives you the full operational picture.</p>
+
+        <h2 class="seo-h2">How to Calculate Intraday Variance (With Formula)</h2>
+        <p>The core formula is simple:</p>
+        <div class="seo-formula">Variance % = ((Actual − Forecast) / Forecast) × 100</div>
+        <p><strong>Example:</strong> If your 9:00–9:15 interval was forecast at 120 calls but you received 138:</p>
+        <div class="seo-formula">Variance = ((138 − 120) / 120) × 100 = +15%</div>
+        <p>A +15% variance at this interval means you're receiving 15% more calls than expected. Depending on staffing levels, this could create queue buildup and SLA risk.</p>
+
+        <div class="seo-mistake">⚠️ <strong>Common Mistake:</strong> Looking at variance in isolation. A +15% volume variance with zero AHT change is very different from a +15% volume variance combined with +10% AHT increase. The compound effect can double your staffing gap.</div>
+
+        <h2 class="seo-h2">What is Intraday Reforecasting?</h2>
+        <p><strong>Intraday reforecasting</strong> means updating your end-of-day volume projection based on what's actually happened so far. Instead of sticking with the original forecast, you blend actual arrival data with the remaining historical pattern.</p>
+        <p>This tool uses the formula: <code>Reforecast EOD = Cumulative Actual + (Daily Forecast × Remaining Historical %)</code></p>
+        <p>Top WFM teams reforecast at least every 30 minutes during volatile periods — this allows staffing adjustments to be triggered earlier, before SLA deteriorates.</p>
+
+        <h2 class="seo-h2">Common Mistakes in Intraday Management</h2>
+        <ul class="seo-list">
+          <li><strong>Overreacting too early:</strong> A spike in the first 30 minutes of the day may self-correct. Pulling offline agents at 8:15 based on 3 intervals of data is usually a mistake.</li>
+          <li><strong>Ignoring AHT impact:</strong> Volume can look normal while AHT inflation quietly destroys your SLA. Always monitor both together.</li>
+          <li><strong>Not adjusting staffing fast enough:</strong> Waiting too long to act means your options narrow. Intraday management rewards early, proportionate action.</li>
+          <li><strong>Using cumulative figures instead of pace:</strong> 500 calls by 10am looks different depending on whether your day is front-loaded or back-loaded. Arrival pattern matters.</li>
+        </ul>
+
+        <h2 class="seo-h2">Real-World Example (Case Study)</h2>
+        <p><strong>Scenario:</strong> It's 11:00 AM. Your contact center forecasted 2,500 calls for the day. By 11:00 AM, you've received 720 calls — but historical data shows you should have received 600 by this point.</p>
+        <p>That's a <strong>+20% volume variance</strong>. The reforecast model now projects 2,980 end-of-day calls — 480 above forecast. Your available capacity is 2,400.</p>
+        <p><strong>Decision:</strong> Offer voluntary overtime to willing agents, pull agents from offline activities, and communicate the risk to the operations manager. At 20% variance at 40% day completion, this is actionable — not just a monitoring situation.</p>
+
+        <h2 class="seo-h2">Explore More WFM Tools</h2>
+        <div class="seo-tools-grid">
+          <a href="https://abdulbasiteverise.github.io/abire-forecast-validator/" class="seo-tool-card" target="_blank">
+            <span class="seo-tool-icon">📊</span>
+            <span class="seo-tool-name">ABIRE Forecast Validator</span>
+            <span class="seo-tool-desc">Validate forecast accuracy using ABIRE methodology</span>
+          </a>
+          <a href="https://abdulbasiteverise.github.io/wfm-intelligence-engine/" class="seo-tool-card" target="_blank">
+            <span class="seo-tool-icon">🧠</span>
+            <span class="seo-tool-name">WFM Intelligence Engine</span>
+            <span class="seo-tool-desc">AI-powered workforce planning and capacity analysis</span>
+          </a>
+          <a href="https://abdulbasiteverise.github.io/bwie-wfm-simulator/" class="seo-tool-card" target="_blank">
+            <span class="seo-tool-icon">⚙️</span>
+            <span class="seo-tool-name">WFM Simulator</span>
+            <span class="seo-tool-desc">Simulate staffing scenarios and model outcomes</span>
+          </a>
+        </div>
+
+        <div class="seo-references">
+          <h3 class="seo-h3">Trusted WFM Concepts Used In This Tool</h3>
+          <p>This tool is built on proven workforce management principles: <strong>Erlang C queueing theory</strong> for FTE estimation, <strong>historical arrival pattern analysis</strong> for reforecasting, <strong>MAPE-based forecast accuracy</strong> measurement, and <strong>intraday reforecast blending</strong> (weighted combination of run-rate and historical projection).</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         ABOUT + BRAND CARD
+    ═══════════════════════════════════════════════ -->
+    <div class="card" style="padding:0">
+      <div class="about-grid" style="padding:24px;gap:20px">
+        <div style="display:flex;gap:20px" class="about-inner">
+          <div class="about-avatar">AB</div>
+          <div>
+            <h2 class="about-name">Abdul Basit</h2>
+            <div class="about-role">WFM Lead · Everise | Workforce Intelligence Builder</div>
+            <p class="about-bio">Workforce Management specialist with deep expertise in RTA (Real-Time Adherence), scheduling, intraday forecasting, and capacity planning. Passionate about building practical WFM tools that help teams make faster, smarter decisions.</p>
+            <div class="about-tags">
+              <span class="about-tag">RTA Specialist</span>
+              <span class="about-tag">Forecasting</span>
+              <span class="about-tag">Scheduling</span>
+              <span class="about-tag">Capacity Planning</span>
+              <span class="about-tag">WFM Systems</span>
+            </div>
+            <div class="about-social-proof">
+              <span class="proof-badge">✓ Used by WFM professionals</span>
+              <span class="proof-badge">✓ Built for real-world operations</span>
+            </div>
+          </div>
+        </div>
+        <div class="card about-cta" style="margin-bottom:0">
+          <h3 class="cta-title">Want to learn WFM like this?</h3>
+          <p class="cta-desc">Connect with Abdul Basit for WFM training, tool customization, and workforce intelligence consulting.</p>
+          <div class="cta-buttons">
+            <a href="https://www.linkedin.com/in/abdulbasiteverise" target="_blank" class="cta-btn cta-btn--primary">🔗 Connect on LinkedIn</a>
+            <button class="cta-btn cta-btn--secondary" id="shareToolBtn">📤 Share This Tool</button>
+            <button class="cta-btn cta-btn--ghost" id="copyLinkBtn">🔗 Copy Link</button>
+          </div>
+          <div class="share-banner" id="shareBanner" style="display:none">
+            <span>✅ Link copied! Share with your WFM team.</span>
+          </div>
+          <div class="viral-banner">
+            <span>💡 If this helped you, share with your WFM team</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end app-container -->
+  </main>
+
+  <!-- Footer -->
+  <footer style="position:relative;z-index:1;border-top:1px solid rgba(255,255,255,.07);background:rgba(6,11,24,.7);backdrop-filter:blur(12px);padding:20px 0;" role="contentinfo">
+    <div style="max-width:1280px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:13px;color:#475569;">
+      <svg width="16" height="16" viewBox="0 0 28 28" fill="none">
+        <rect x="1" y="1" width="11" height="11" rx="3" fill="url(#lgft)"/>
+        <rect x="16" y="1" width="11" height="11" rx="3" fill="url(#lgft)" opacity="0.4"/>
+        <rect x="1" y="16" width="11" height="11" rx="3" fill="url(#lgft)" opacity="0.4"/>
+        <rect x="16" y="16" width="11" height="11" rx="3" fill="url(#lgft)"/>
+        <defs><linearGradient id="lgft" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#818cf8"/></linearGradient></defs>
+      </svg>
+      <span>Built by <strong style="color:#94a3b8">Abdul Basit</strong> · WFM Lead at Everise · Workforce Intelligence Suite · Intraday Command Center v5</span>
+    </div>
+  </footer>
+
+  <!-- AI Copilot -->
+  <button id="copilotToggle" aria-controls="copilotPanel" aria-expanded="false">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 7h5M7 4.5v5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".7"/></svg>
+    AI Copilot
+  </button>
+  <div id="copilotPanel" class="copilot-panel" aria-live="polite">
+    <div class="copilot-header">
+      <h3>WFM Co-Pilot</h3>
+      <button id="copilotCollapse" aria-label="Collapse copilot">—</button>
+    </div>
+    <div class="copilot-messages" id="copilotMessages"></div>
+    <div class="copilot-input-row">
+      <input id="copilotInput" type="text" placeholder="Ask about risk, staffing, or variance..." />
+      <button id="copilotSend">Send</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
